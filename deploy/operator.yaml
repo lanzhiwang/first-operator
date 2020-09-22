@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: imooc-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: imooc-operator
+  template:
+    metadata:
+      labels:
+        name: imooc-operator
+    spec:
+      serviceAccountName: imooc-operator
+      containers:
+        - name: imooc-operator
+          # Replace this with the built image name
+          image: REPLACE_IMAGE
+          command:
+          - imooc-operator
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "imooc-operator"
