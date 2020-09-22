@@ -30,9 +30,32 @@ spec:
           type: object
         spec:
           description: ImoocPodSpec defines the desired state of ImoocPod
+          properties:
+            replicas:
+              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                Important: Run "operator-sdk generate k8s" to regenerate code after
+                modifying this file Add custom validation using kubebuilder tags:
+                https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
+              type: integer
+          required:
+          - replicas
           type: object
         status:
           description: ImoocPodStatus defines the observed state of ImoocPod
+          properties:
+            podNames:
+              items:
+                type: string
+              type: array
+            replicas:
+              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                of cluster Important: Run "operator-sdk generate k8s" to regenerate
+                code after modifying this file Add custom validation using kubebuilder
+                tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
+              type: integer
+          required:
+          - podNames
+          - replicas
           type: object
       type: object
   version: v1alpha1
