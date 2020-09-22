@@ -19,7 +19,7 @@ spec:
           # todo 替换为生成的镜像
           # kind load docker-image rubinus/imoocpod-operator
           # image: REPLACE_IMAGE
-          image: docker.io/rubinus/imoocpod-operator:latest
+          image: docker.io/rubinus/imoocpod-operator:v1
           command:
           - imooc-operator
           # 由于使用 kind 的缘故，imagePullPolicy 需要修改为 Never
