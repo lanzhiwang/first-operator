@@ -16,10 +16,15 @@ spec:
       containers:
         - name: imooc-operator
           # Replace this with the built image name
-          image: REPLACE_IMAGE
+          # todo 替换为生成的镜像
+          # kind load docker-image rubinus/imoocpod-operator
+          # image: REPLACE_IMAGE
+          image: docker.io/rubinus/imoocpod-operator:latest
           command:
           - imooc-operator
-          imagePullPolicy: Always
+          # 由于使用 kind 的缘故，imagePullPolicy 需要修改为 Never
+          # imagePullPolicy: Always
+          imagePullPolicy: Never
           env:
             - name: WATCH_NAMESPACE
               valueFrom:
