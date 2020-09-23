@@ -103,34 +103,34 @@ func (r *ReconcileImoocPod) Reconcile(request reconcile.Request) (reconcile.Resu
 	reqLogger.Info("自定义日志")
 
 	/*
-	// 通过自定义的资源 ImoocPod 获取已经存在的 pod
-	lbls := labels.Set{
-		"app": instance.Name,
-	}
-	existingPods := &corev1.PodList{}
-	err = r.client.List(
-		context.TODO(),
-		existingPods,
-		&client.ListOptions{
-			Namespace: request.Namespace,
-			LabelSelector: labels.SelectorFromSet(lbls),
-		},
-	)
-	if err != nil {
-		reqLogger.Error(err, "获取已经存在的 pod 失败")
-		return reconcile.Result{}, nil
-	}
+		// 通过自定义的资源 ImoocPod 获取已经存在的 pod
+		lbls := labels.Set{
+			"app": instance.Name,
+		}
+		existingPods := &corev1.PodList{}
+		err = r.client.List(
+			context.TODO(),
+			existingPods,
+			&client.ListOptions{
+				Namespace: request.Namespace,
+				LabelSelector: labels.SelectorFromSet(lbls),
+			},
+		)
+		if err != nil {
+			reqLogger.Error(err, "获取已经存在的 pod 失败")
+			return reconcile.Result{}, nil
+		}
 
-	// 获取 pod 的名称
-	var existingPodNames []string
-	for _, pod := range existingPods.Items {
-		if pod.GetObjectMeta().GetDeletionTimestamp() != nil {
-			continue
+		// 获取 pod 的名称
+		var existingPodNames []string
+		for _, pod := range existingPods.Items {
+			if pod.GetObjectMeta().GetDeletionTimestamp() != nil {
+				continue
+			}
+			if pod.Status.Phase == corev1.PodPending || pod.Status.Phase == corev1.PodRunning {
+				existingPodNames = append(existingPodNames, pod.GetObjectMeta().GetName())
+			}
 		}
-		if pod.Status.Phase == corev1.PodPending || pod.Status.Phase == corev1.PodRunning {
-			existingPodNames = append(existingPodNames, pod.GetObjectMeta().GetName())
-		}
-	}
 	*/
 
 	// Define a new Pod object
