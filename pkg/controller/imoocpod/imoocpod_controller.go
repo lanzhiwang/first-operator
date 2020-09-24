@@ -224,7 +224,6 @@ func (r *ReconcileImoocPod) Reconcile(request reconcile.Request) (reconcile.Resu
 		if err != nil {
 			return reconcile.Result{}, err
 		}
-
 		// Pod created successfully - don't requeue
 		return result, nil
 	} else if err != nil {
