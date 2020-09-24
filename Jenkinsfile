@@ -5,7 +5,7 @@ AlaudaPipeline {
         agent: 'golang-1.13',
         folder: '.',
         scm: [
-            credentials: 'devops-alauda-gitlab'
+            credentials: 'alauda-gitlab'
         ],
         docker: [
             repository: "tdsql/redis-operator",
