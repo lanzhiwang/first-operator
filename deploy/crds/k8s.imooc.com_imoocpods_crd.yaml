@@ -37,8 +37,14 @@ spec:
                 modifying this file Add custom validation using kubebuilder tags:
                 https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
               type: integer
+            size:
+              type: integer
+            watched_namespace:
+              type: string
           required:
           - replicas
+          - size
+          - watched_namespace
           type: object
         status:
           description: ImoocPodStatus defines the observed state of ImoocPod
@@ -53,9 +59,15 @@ spec:
                 code after modifying this file Add custom validation using kubebuilder
                 tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
               type: integer
+            size:
+              type: integer
+            watched_namespace:
+              type: string
           required:
           - podNames
           - replicas
+          - size
+          - watched_namespace
           type: object
       type: object
   version: v1alpha1

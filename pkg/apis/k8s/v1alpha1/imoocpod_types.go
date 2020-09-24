@@ -12,7 +12,9 @@ type ImoocPodSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
-	Replicas int `json:"replicas"`  // 期望 pod 的数量
+	Replicas         int    `json:"replicas"` // 期望 pod 的数量
+	Size             int    `json:"size"`
+	WatchedNamespace string `json:"watched_namespace"`
 }
 
 // ImoocPodStatus defines the observed state of ImoocPod
@@ -20,8 +22,10 @@ type ImoocPodStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
-	Replicas int `json:"replicas"`  // 实际运行的 pod 的数量
-	PodNames []string `json:"podNames"`  // 实际运行的 pod 的名称
+	Replicas         int      `json:"replicas"` // 实际运行的 pod 的数量
+	Size             int      `json:"size"`
+	WatchedNamespace string   `json:"watched_namespace"`
+	PodNames         []string `json:"podNames"` // 实际运行的 pod 的名称
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

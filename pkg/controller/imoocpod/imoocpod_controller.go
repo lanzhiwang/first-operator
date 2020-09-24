@@ -2,8 +2,10 @@ package imoocpod
 
 import (
 	"context"
+	"fmt"
 
 	k8sv1alpha1 "github.com/imooc-com/imooc-operator/pkg/apis/k8s/v1alpha1"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -86,6 +88,12 @@ func (r *ReconcileImoocPod) Reconcile(request reconcile.Request) (reconcile.Resu
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling ImoocPod")
 
+	// 定义返回结果，定时执行
+	result := reconcile.Result{
+		Requeue:      true,
+		RequeueAfter: 60,
+	}
+
 	// Fetch the ImoocPod instance
 	instance := &k8sv1alpha1.ImoocPod{}
 	err := r.client.Get(context.TODO(), request.NamespacedName, instance)
@@ -94,13 +102,79 @@ func (r *ReconcileImoocPod) Reconcile(request reconcile.Request) (reconcile.Resu
 			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 			// Return and don't requeue
-			return reconcile.Result{}, nil
+			return result, nil
 		}
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
 	}
 
-	reqLogger.Info("自定义日志")
+	fmt.Println("watchedNamespace", instance.Spec.WatchedNamespace)
+
+	// 从 instance 中获取
+	watchedNamespace := instance.Spec.WatchedNamespace
+
+	// 获取所有存在的 pod
+	existingPods := &corev1.PodList{}
+	err = r.client.List(
+		context.TODO(),
+		existingPods,
+		&client.ListOptions{
+			Namespace: watchedNamespace,
+		},
+	)
+	if err != nil {
+		reqLogger.Error(err, "获取已经存在的 pod 失败")
+		return result, nil
+	}
+	var existingPodNames []string
+	for _, pod := range existingPods.Items {
+		existingPodNames = append(existingPodNames, pod.GetObjectMeta().GetName())
+	}
+	fmt.Println(existingPodNames)
+
+	// 获取所有存在 deployment
+	existingDeployment := &appsv1.DeploymentList{}
+	err = r.client.List(
+		context.TODO(),
+		existingDeployment,
+		&client.ListOptions{
+			Namespace: watchedNamespace,
+		},
+	)
+	var existingDeploymentNames []string
+	for _, deployment := range existingDeployment.Items {
+		existingDeploymentNames = append(existingDeploymentNames, deployment.GetObjectMeta().GetName())
+	}
+	fmt.Println(existingDeploymentNames)
+
+	//获取所有的 service
+	existingService := &corev1.ServiceList{}
+	r.client.List(
+		context.TODO(),
+		existingService,
+		&client.ListOptions{
+			Namespace: watchedNamespace,
+		},
+	)
+	for _, service := range existingService.Items {
+		fmt.Println("service:", service.GetObjectMeta().GetName())
+	}
+
+	// lbls := labels.Set{
+	// 	"app": instance.Name,
+	// }
+	// existingPods := &corev1.PodList{}
+	// err = r.client.List(
+	// 	context.TODO(),
+	// 	existingPods,
+	// 	&client.ListOptions{
+	// 		Namespace:     request.Namespace,
+	// 		LabelSelector: labels.SelectorFromSet(lbls),
+	// 	},
+	// )
+	// for _, pod := range existingPods.Items {
+	// 	fmt.Printf("pod: %+v", pod)
+	// }
 
 	/*
 		// 通过自定义的资源 ImoocPod 获取已经存在的 pod
@@ -152,14 +226,14 @@ func (r *ReconcileImoocPod) Reconcile(request reconcile.Request) (reconcile.Resu
 		}
 
 		// Pod created successfully - don't requeue
-		return reconcile.Result{}, nil
+		return result, nil
 	} else if err != nil {
 		return reconcile.Result{}, err
 	}
 
 	// Pod already exists - don't requeue
 	reqLogger.Info("Skip reconcile: Pod already exists", "Pod.Namespace", found.Namespace, "Pod.Name", found.Name)
-	return reconcile.Result{}, nil
+	return result, nil
 }
 
 // newPodForCR returns a busybox pod with the same name/namespace as the cr

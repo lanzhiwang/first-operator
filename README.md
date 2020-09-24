@@ -725,6 +725,59 @@ index 60c3795..6a64e26 100644
            # 由于使用 kind 的缘故，imagePullPolicy 需要修改为 Never
 huzhi@localhost imooc-operator %
 
+
+
+huzhi@localhost imooc-operator % tree -a .
+.
+├── .gitignore
+├── README.md
+├── build
+│   ├── Dockerfile
+│   ├── _output
+│   │   └── bin
+│   │       └── imooc-operator
+│   └── bin
+│       ├── entrypoint
+│       └── user_setup
+├── cmd
+│   └── manager
+│       └── main.go
+├── deploy
+│   ├── crds
+│   │   ├── k8s.imooc.com_imoocpods_crd.yaml
+│   │   └── k8s.imooc.com_v1alpha1_imoocpod_cr.yaml
+│   ├── operator.yaml
+│   ├── role.yaml
+│   ├── role_binding.yaml
+│   └── service_account.yaml
+├── go.mod
+├── go.sum
+├── pkg
+│   ├── apis
+│   │   ├── addtoscheme_k8s_v1alpha1.go
+│   │   ├── apis.go
+│   │   └── k8s
+│   │       ├── group.go
+│   │       └── v1alpha1
+│   │           ├── doc.go
+│   │           ├── imoocpod_types.go
+│   │           ├── register.go
+│   │           └── zz_generated.deepcopy.go
+│   └── controller
+│       ├── add_imoocpod.go
+│       ├── controller.go
+│       └── imoocpod
+│           └── imoocpod_controller.go
+├── tools.go
+└── version
+    └── version.go
+
+120 directories, 153 files
+huzhi@localhost imooc-operator %
+
+
+
+
 ```
 
 
