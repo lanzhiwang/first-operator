@@ -5,7 +5,7 @@ AlaudaPipeline {
         agent: 'golang-1.13',
         folder: '.',
         scm: [
-            credentials: 'alauda-gitlab'
+            credentials: 'middleware-gitlab'
         ],
         docker: [
             repository: "tdsql/imoocpod-operator",
