@@ -8,7 +8,7 @@ AlaudaPipeline {
             credentials: 'alauda-gitlab'
         ],
         docker: [
-            repository: "tdsql/redis-operator",
+            repository: "tdsql/imoocpod-operator",
             credentials: "tdsql-harbor-b",
             context: ".",
             dockerfile: "build/Dockerfile",
@@ -17,7 +17,7 @@ AlaudaPipeline {
         ],
         sonar: [
             binding: "sonarqube",
-            enabled: true,
+            enabled: false,
         ],
     ]
     env = [
