@@ -4,6 +4,14 @@ AlaudaPipeline {
     config = [
         agent: 'golang-1.13',
         folder: '.',
+        chart: [
+            [
+                chart: "tdsql",
+                component: "first-operator",
+                pipeline: "first-chart",
+                branch:  "master",
+            ],
+        ],
         scm: [
             credentials: 'devops-alauda-gitlab'
         ],
