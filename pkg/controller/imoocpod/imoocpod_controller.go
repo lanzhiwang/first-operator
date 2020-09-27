@@ -92,7 +92,7 @@ func (r *ReconcileImoocPod) Reconcile(request reconcile.Request) (reconcile.Resu
 	// 定义返回结果，定时执行
 	result := reconcile.Result{
 		// Requeue:      true,
-		RequeueAfter: 1000 * 60 * 20,
+		RequeueAfter: 1000000000 * 6,
 	}
 
 	// Fetch the ImoocPod instance
