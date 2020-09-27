@@ -1,49 +1,38 @@
 library "alauda-cicd"
 def language = "golang"
-AlaudaPipeline {
+AlaudaPipeline{
     config = [
-        agent: 'golang-1.13',
+        agent: 'golang-1.12',
         folder: '.',
         chart: [
-            [
-                chart: "tdsql",
-                component: "first-operator",
-                pipeline: "first-chart",
-                branch:  "master",
-            ],
+            chart: "test-chart",
+            component: "test-chart",
         ],
         scm: [
-            credentials: 'devops-alauda-gitlab'
+            credentials: 'tdsql-zhihu'
         ],
         docker: [
             repository: "tdsql/imoocpod-operator",
-            credentials: "tdsql-harbor-b",
+            credentials: "tdsql-tdsql-harbor-b",
             context: ".",
             dockerfile: "build/Dockerfile",
-            enabled: true,
-            armBuild: false,
         ],
         sonar: [
-            binding: "sonarqube",
-            enabled: false,
+            binding: "tdsql-son"
         ],
     ]
     env = [
         GO111MODULE: "on",
         GOPROXY: "https://athens.alauda.cn,https://goproxy.cn,direct",
-        CGO_ENABLED: "0",
-        GOOS: "linux",
     ]
     steps = [
         [
-            name: "Test",
-            container: "golang",
-            commands: ["make test"]
-        ],
-        [
             name: "Build",
-            container: "golang",
-            commands: ["make build"]
+            container: language,
+            commands: [
+                """make test
+                make build""",
+            ]
         ],
     ]
 }
