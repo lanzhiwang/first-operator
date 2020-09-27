@@ -91,7 +91,7 @@ func (r *ReconcileImoocPod) Reconcile(request reconcile.Request) (reconcile.Resu
 	fmt.Println("定义返回值")
 	// 定义返回结果，定时执行
 	result := reconcile.Result{
-		// Requeue:      true,
+		Requeue:      true,
 		RequeueAfter: 1000000000 * 6,
 	}
 
