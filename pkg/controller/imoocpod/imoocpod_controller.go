@@ -88,6 +88,7 @@ func (r *ReconcileImoocPod) Reconcile(request reconcile.Request) (reconcile.Resu
 	reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
 	reqLogger.Info("Reconciling ImoocPod")
 
+	fmt.Println("定义返回值")
 	// 定义返回结果，定时执行
 	result := reconcile.Result{
 		// Requeue:      true,
