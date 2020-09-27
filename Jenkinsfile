@@ -9,7 +9,7 @@ AlaudaPipeline{
             component: "test-chart",
         ],
         scm: [
-            credentials: 'tdsql-zhihu'
+            credentials: 'devops-alauda-gitlab'
         ],
         docker: [
             repository: "tdsql/imoocpod-operator",
