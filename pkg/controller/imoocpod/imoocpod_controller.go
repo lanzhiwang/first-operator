@@ -10,10 +10,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -161,78 +159,6 @@ func (r *ReconcileImoocPod) Reconcile(request reconcile.Request) (reconcile.Resu
 		fmt.Println("service:", service.GetObjectMeta().GetName())
 	}
 
-	// lbls := labels.Set{
-	// 	"app": instance.Name,
-	// }
-	// existingPods := &corev1.PodList{}
-	// err = r.client.List(
-	// 	context.TODO(),
-	// 	existingPods,
-	// 	&client.ListOptions{
-	// 		Namespace:     request.Namespace,
-	// 		LabelSelector: labels.SelectorFromSet(lbls),
-	// 	},
-	// )
-	// for _, pod := range existingPods.Items {
-	// 	fmt.Printf("pod: %+v", pod)
-	// }
-
-	/*
-		// 通过自定义的资源 ImoocPod 获取已经存在的 pod
-		lbls := labels.Set{
-			"app": instance.Name,
-		}
-		existingPods := &corev1.PodList{}
-		err = r.client.List(
-			context.TODO(),
-			existingPods,
-			&client.ListOptions{
-				Namespace: request.Namespace,
-				LabelSelector: labels.SelectorFromSet(lbls),
-			},
-		)
-		if err != nil {
-			reqLogger.Error(err, "获取已经存在的 pod 失败")
-			return reconcile.Result{}, nil
-		}
-
-		// 获取 pod 的名称
-		var existingPodNames []string
-		for _, pod := range existingPods.Items {
-			if pod.GetObjectMeta().GetDeletionTimestamp() != nil {
-				continue
-			}
-			if pod.Status.Phase == corev1.PodPending || pod.Status.Phase == corev1.PodRunning {
-				existingPodNames = append(existingPodNames, pod.GetObjectMeta().GetName())
-			}
-		}
-	*/
-
-	// Define a new Pod object
-	pod := newPodForCR(instance)
-
-	// Set ImoocPod instance as the owner and controller
-	if err := controllerutil.SetControllerReference(instance, pod, r.scheme); err != nil {
-		return reconcile.Result{}, err
-	}
-
-	// Check if this Pod already exists
-	found := &corev1.Pod{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: pod.Name, Namespace: pod.Namespace}, found)
-	if err != nil && errors.IsNotFound(err) {
-		reqLogger.Info("Creating a new Pod", "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
-		err = r.client.Create(context.TODO(), pod)
-		if err != nil {
-			return reconcile.Result{}, err
-		}
-		// Pod created successfully - don't requeue
-		return result, nil
-	} else if err != nil {
-		return reconcile.Result{}, err
-	}
-
-	// Pod already exists - don't requeue
-	reqLogger.Info("Skip reconcile: Pod already exists", "Pod.Namespace", found.Namespace, "Pod.Name", found.Name)
 	return result, nil
 }
 
