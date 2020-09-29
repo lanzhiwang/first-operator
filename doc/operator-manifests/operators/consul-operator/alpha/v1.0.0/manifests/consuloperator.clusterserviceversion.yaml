@@ -1,0 +1,239 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "operator.alauda.io/v1alpha1",
+          "kind": "Consul",
+          "metadata": {
+            "name": "consul-k8s"
+          },
+          "spec": {
+            "client": {
+              "resources": {
+                "memory": "100Mi",
+                "cpu": "100m"
+              }
+            },
+            "server": {
+              "pvc": {
+                "enable": false,
+                "storage": "10Gi",
+                "storageClassName": ""
+              },
+              "hostPath": {
+                "enable": true,
+                "path": "/data/consul"
+              },
+              "nodes": [
+                "nodeName1",
+                "nodeName2",
+                "nodeName3"
+              ],
+              "resources": {
+                "memory": "100Mi",
+                "cpu": "100m"
+              }
+            }
+          }
+        }
+      ]
+    capabilities: Basic Install
+    categories: SpringCloud
+    certified: 'false'
+    containerImage: harbor.alauda.cn/3rdparty/consul-operator:v2.15.0
+    createdAt: '2020-09-05 23:30:00'
+    description: "Consul 是一个支持多数据中心分布式高可用的服务发现和配置共享的服务软件。"
+  name: consul-operator.v1.0.0
+spec:
+  customresourcedefinitions:
+    owned:
+      - description: Consul
+        displayName: Consul
+        kind: Consul
+        name: consuls.operator.alauda.io
+        resources:
+          - {kind: Deployment, version: v1}
+          - {kind: Service, version: v1}
+          - {kind: ReplicaSet, version: v1}
+          - {kind: Pod, version: v1}
+          - {kind: Secret, version: v1}
+          - {kind: ConfigMap, version: v1}
+        specDescriptors: []
+        statusDescriptors: []
+        version: v1alpha1
+    required: []
+  description: "### 介绍\n
+
+                Consul 是 HashiCorp 公司推出的开源产品，用于实现分布式系统的服务发现、服务隔离、服务配置，这些功能中的每一个都可以根据需要单独使用，也可以同时使用所有功能。Consul 官网目前主要推 Consul 在服务网格中的使用。\
+                与其它分布式服务注册与发现的方案相比，Consul 的方案更“一站式”——内置了服务注册与发现框架、分布一致性协议实现、健康检查、Key/Value 存储、多数据中心方案，不再需要依赖其它工具。Consul 本身使用 go 语言开发，具有跨平台、运行高效等特点，也非常方便和 Docker 配合使用。\n\
+
+                ### 主要功能\n
+
+                **Service Discovery** : 服务注册与发现，Consul 的客户端可以做为一个服务注册到 Consul，也可以通过 Consul 来查找特定的服务提供者，并且根据提供的信息进行调用。\n
+
+                **Health Checking** : Consul 客户端会定期发送一些健康检查数据和服务端进行通讯，判断客户端的状态、内存使用情况是否正常，用来监控整个集群的状态，防止服务转发到故障的服务上面。\n
+
+                **KV Store** : Consul 还提供了一个容易使用的键值存储。这可以用来保持动态配置，协助服务协调、建立 Leader 选举，以及开发者想构造的其它一些事务。\n
+
+                **Secure Service Communication** : Consul 可以为服务生成分布式的 TLS 证书，以建立相互的 TLS 连接。 可以使用 intentions 定义允许哪些服务进行通信。 可以使用 intentions 轻松管理服务隔离，而不是使用复杂的网络拓扑和静态防火墙规则。\n
+
+                **Multi Datacenter** : Consul 支持开箱即用的多数据中心，这意味着用户不需要担心需要建立额外的抽象层让业务扩展到多个区域。
+    "
+  displayName: Consul Operator
+  icon:
+    - base64data: iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAIAAAAiOjnJAAAACXBIWXMAAAs2AAALNgG/CNh6AAAAEXRFWHRUaXRsZQBQREYgQ3JlYXRvckFevCgAAAATdEVYdEF1dGhvcgBQREYgVG9vbHMgQUcbz3cwAAAALXpUWHREZXNjcmlwdGlvbgAACJnLKCkpsNLXLy8v1ytISdMtyc/PKdZLzs8FAG6fCPGXryy4AAAeaklEQVR42u1d6ZMVVZYv/QdUpD9bVXweKfzajdunATpcvowa0a4TrRMx0RaFOCM4oUPhRIzdQjE6avcMi0aLGm4wE7NIOwrd0UKV7BYgssvSLYIUhazKyze/zJN58twl8+Wryiwy37unXlS8l5kv3828vzz7Obej7shRAdThboEjByxHDliOHLAcOXLAcuSA5cgBy5EjByxHDliOHLAcOXLAcuSA5cgBy5EjByxHDliOHLBahjzPi98Hr9Sj03bWeHfyieTPZTytA1bVIZbloFqzYG148jYGVXuLQjuPKQLJngNW+/Eqz8arGHNewmlSQNnmjKoNdKxsG0OIePUfTp8/s2Hvn5etO7Rw9Z6fL93x0xc+/8nCTTc+NdTVO9jV+1nXnE2dczZ29mLjrlkv7LrvpX1zVx4d+PDUmuGzO48Wyv8csCrBrRT+9P3o+RPvbQREAJehzj68ACB6yY/aLv3VPXvz1Pm77n35+LLfA5q63dCugGs/HcurXx69cORf1gAKBIsYNN2z5WsoYFTmduUY+i7eBB8Hu/q23/wckEoIa2fh2NEeWAp51eiG/bvufTUGTfCGwLGpK9hIiCFGhV28hTfi4O7oSPoouBrthdDEm23TF5x8d+PFoyOOY7WW7PMUkXdsyZqtU+dJHBB0YpSoQAE46OPGG/okmBiIOjMTW2I2Frw5MHflxcOn2k3D72hB7mRACjoQTzbjCSyK557eW14RV1N0r67e+HiCoEQni1H1iweffPPikZOOY1WIEn2bI2uGt01fSBIt5DqshqvoGeoOQCO3MG/rjvaq3I5BxhKTRaFyBpWfQbeD+RlD33PAqhRB9Oy+92UfEHKabYyEtsOPoIg2FmoRH9LEn8nhwjOTrIwUOM0CoN8anv7cifeGHMeqFtPy33y9dB1kH0+qHVIGZ9LwJMEn+ZMuKFkPo9/qVnQsevkoJFMg4md4A8kI49QBqxr0w5kLex9dxtMZK9rRZIdTq7IrFmSBv8CH1MYpffBs7Zz5q31z39r/5Nv0/8ATb+ENnBS773l189R5Mf6kwWh1T5A8pd/iLV29cExcaF2tq3WABdUYaFA0dHW+4WSS/ifN5wkJBf8ThNT5Xcey8BKYBXBWgTt++eiyrT/pVxiV4UENsd7pj8oXu8HHLdP7LzpglZxGfrfDF39SsxG8QdOghwQjAQc6tuR/pTuAfOUNtWrNpX5mw57D/au3/7hfer/oDfifzix91jXn2w8/d6Kw1PT10j9o3CIUfN2xaRa6GDpDbAGFB/tXAQ25D+bM0F44rkKViw1GaS4ENiacIK3tzKowsIhnYIaYPcTaMXkBVHdUFNebh69cHr1UqDEBGQf1XKJKMk6wSWcVlsfyszzhjCrNTaCo50LX+ar/g+9HzzaUa+OHO3s9fHhF7i6CFxSySLWqOWCVgUHp0wbdSA/eBboLG4OxP6lrDtxa0MqTfZK1AkZbo9PCT0vZEzSYc0GajeNYJSUkQvlWXpcCI3ava6wLCS1X2A9y+jxUe1KtWptRVRtYSBnYeuN81tClc0HJXOieDbkTMqrM9l1BvBY0un5PvW2oesC6dPRbZKTIQE2cp9DZB7uP/FV4PzzrV1fGUeTV24QttRSw4AGX/iryOkpXAmnK+598s2wGrANWGd0KxAiQk25mQWlxX7zgSaqg+0TRyb5e/nv49JFc/9WCVVV00FeJY8F6pyCdGZJTMp/mvl3FR5yfnwtfQdYv1PIQT7475IBVFAExMgVFBoD5DYLQVRYgNfwBVUiXkBFrel8tP0VHaR9cTUYgPBwnKQgvdpjFEOhYsAErnIsSXuZGJXotGHOptMbW4Vi+dFBvdFyYRVr8jU/BYDTUlYpJwzDOKANBEcfafnN/hS6soxKPcvgcCx+VEgEMXifeGayoCeaxHPTqSPmSufYy+Qc1tI5j5UzIiYvTyaOkPJnLcLBSYiKFkOAVMuCu2QrH6uxzojBngnbFzirNEiSE+WFdrb6qsgRHA6UN6tnSU3ovHDnlgJWPO4fZlZb6wu4r+lg5UzydYP0BW7762B1fMvpExF26VFkffKw5YDWHLTIGY7VDrWjwVdof96fjsooE5oQMH6Rt7Zy56Ej/qu8G96XfpRJedBmBJZ9I6rAQhmu46EUUR7DOXllg1cyxN26VU/rLLK+O5QWudtalFOU9koYQGfXWpgTx53SscZtI7A6lStHOqP1GsFFzMVRdDGZAT80BKwcVK+w0JNKtZPGnlV15LQEsz7vcCF9eyS+7vBwLIX1pb1O+KAGLi4lbTe4FyGqNHJvycizYg0q2sSg0JTkog7JeNRURInTtOrxwFcpl8Z+jUiYzwg354p4XEdpCAuOBuW+orjvnbshMftRMwChubhZ89OWgly+3uGwyjwyCppaOZs/zkg+owR26OxD3gdcqlPK+y8rAFjAn3VpBhX5/mfMdygus4VmLZNoxJxzTxiJT+WoMrK+H92359epPn//tunm/+fT5lXv/a/2l09+lMIlmWSY9PEroJsjUQKmIxDQ6A0r/MB/sh6XLqlmWFFjIflHqt9RuQdg4smZ7oQPY8dZHb9z8i8XXz1w0eQb+i9eMD/920ZmvjmuOgGYhheOhREqDV4YFkTgq8QLZJ70t1GSQtqB/hOeAlZ1wv+K0Y7Xgk25ocXlXo4ePv3PH3xOMFk0iVM0IXhJeM8HGxukRQCQqbugQVETKAsn4Amue0uJLtjPpnh3UkzlRmJlQCcgBHGrBILsz7Jjxy4L4P1C1tOdhDUMJrxnrf/lGDKO4MqemjC15lCfe+Uzmk0mQ4X8MLK++eeo/KM+VSANEEYADVhPkl3fK7KuuOdKhtffRfy8CVRBwKqp8LjUweZaGJ8G9Zmz59aox2bx+v4Dv1u/VEoG4nal00UFo7r73JVnzLcViw6pJByyF/FvJ/gVOdos0EtNuyoWgPGkAeuH6GYsmz7TBK4Td4h/N+mZ4f3N+FCEzfZOQfSgs8YWAI9Xt7I4jUg9jcVnmDK3SAutlvZOnyEhGQmkRQlBBjK+2Kx8tqArevHPnU9YKVWQowEewpefpoOf7wsMDaHFzQYMWfFF+9pXaLO6L+15RQRg2gEAeB6cp45z7HluK5m+eA1ZT5Hc7Fgxfps3A+S7XfciL1s7/DWFl4PoZyXLQ9vrRrItnztcNxFDDZmmCILEMzSwN+/cc+nvtvOdfcfzen6+QuWWyoBKvS0dGEBuFkoDOXqNy5Ys0V5kDlkqbqdm/li8aWYg+sPK+k8IS/EsbZ9JfS66fNTApBNbw2x+ZDwal98gYFKwQtOO2KvSe7X0CXKoRhy4psDQ5KD0OBXUCktItC7Dka8M//1byjzPr98uCItm8efO0p3Px35bUK1p+YClt1o02MhRQy5f/SzANTG4MLCklP/zFYslv4EfQ1t7hvrpD0eCbcqXaGVu5A6OVAVbc+aP5uWkSWLG3PUXHinyn/mvd0/8mOQoUbaXdd+R5Qr/kocjzqWUxhGkwGRYCrkqgvTKiMM5IBrCOjETOoNxo6bQHs/lFLcr75lcVb9blkfPcYyLOJAuyq7fevCBJtxrLxXgOWONW3qUjkYsLcryxq+5fIAUf8aosViGOOfrHYW2m4644knUhuvy77XRYGuPx0mBD2TLl51tVcjewFn/yvQ25/+K+/x5UXQxZ3Q3Lpv21FRtwcsq4MhqAozOR9adxJNwN6FMK752+zI4Xeurhpzi85ENaygUvOJBLXmZYUmAhnh+3a+cWo1jW4QY/b+lPKwrpKUrxnNCJYKjtiyZbdCyo+TtXfpTgAqhh7hH0BCAAF6RemVwGHk7/StV2X/B8agzph9MX6Ybw8haUXSP8eS7RLxtx2754xTaRYQKPdhHi4Min2zVvO9AzYEtt4IjhsmmPNKsCyY1oqqY8PxG2RMzKR8zB/g+UxTujnMdNPfNL212npKnJhxau0vyijKqN3U8U0QSL7LLB598YmJxgBk72mZnc+0rXX40e/rOuGMUFEY0cmzXvc2qmaqy4CU0gBmAt7rQj15OitVtOvv+Z87w3QXEBtGxdFK0VCNW+OKto8Pk3A9z81GdXk2Ym+R0gNxF+9lTEJLOomuGdql84fEJb2il2pU55grH4w+mziqO1W1n9MAxXuyqdjBY0fOvaqkayqDD0OHh586yIdr35f8t7HtSCzQG7mhUgbMZ//Gyhn0Sa7WK8BB0IWfaQZTIMGq/50zNfHHd5043zlNCQKDAp7ZqapU1NPqcvWqku6H18xR8KxHVA0Mr/82cLIO+YXYFLwRd69I/bxwZZU2BRopWWFAQBd/DJlQJ/HjKVuQAuPizQ34O+tzUHrCYIfcY0/V16sdGgrPghxBMGXcqzdU/wmpjUmtUpFa5EJ9b8wTqG2gKZ4N++Y09bz7yzL07bcsDKzjkOLVytrYcjEQaPjm8QFSYNLbPlZTD5Ug+wqtiXDp+kCjC6tC/ve0Vpvu3F2ELm1qBovlpQtmPrcywsJqitF68pIn6Bim2qqli0CofWuV3H/AXu9auoqffEX9P1xHsb2MtQWhd8OYFVIzUrXjM8ymeSi5eGNVLVJ68FnowKcSwvSlCOwcR8K/rfYgvB6636mjnYAauJWwy2rxV+acUqWLKwmdzLKjGuWsNGay7Rb8z3FwwJ0tBPY4paG2j6VqjCZzDsq0O1RrCpVQJjHSV/emn9yHhlryjlYTBq82ddWrLaWkow+h/OnIMT+OzOY3W1qkJeXpmfn7K34/ZtQ7F2HHu22PA2mFb11XivThkylC6LQCE9PNV6WsoIrFrY6yXkQ9LNEwpB4daCoKRkhyQxUTk5iBY0cQA+qiJEE2UrCp27YexP8HeDfoMQBDSAoaSVCrVKw2rpWDI54Zt3P1NSGESUuohqyjZV3pnQyU62mglw1isjski/DARirbJqVjDymrc7aruq9W/Ca0KiWG0GLCS5K6tdqgtVUL8oqPkp56kCD/M9DNumPydtFK4iwcZqOYQrs6wcJwLQAoXayvVhTwdeTECtfqnVq4EqvMKc7EDEQ/rLYlfq6eCANU6GVdPEhN+KLVKtuN2P0ucosBCtRdIVEot+CYYwTWRDlNKmXlWbY9WDBq/+QxwpsyHr6lZaJMA4r9YqWaqwrkFTpAWhldqkbjVZ2QFrjPfXlqACUYGwtJ+9FFlMgxxGVLNr0NSluqvM4fIvfYVONQuGuOPolL4vwlyamgNWUUS9SeVCmDKRJkqCmI0ihYtHvlGQWS0r0fOvFFWvXy9fO1opL0NVgUVaCOXpynJQko+UFM+FLrYWD7XMlmiORq3Y4bVGUkwrAqvO/f60Ap5IqWfX/Ja/mBc3TLesHzkRjhLeri0ZFw2m5oB1xYVDPAfQcKM1SGcrefGqkUi6lzVKzSf18mNZXI1jbTyEHFF0XWuxBLLW4Vg8Z1BmCVuy5o79pVphPvzyF9XyhCK8JBzfNFF6dvgoLQIQhPxqDlilxhZcVpt65mnN9f14YlBBpXeq6Zpj7bU/fo+8cQbFA4dy06MD/xMJaB/oBTWecMDKk4K6qPlxAY9MrYncXX5UJNK9wLqwLk2hLEOU2HvfvDtIK6VznxxfEeyZV9rm7A5YMUs4t+MY8y0tHUDPEYiUehiM6ObYaN2usevr4FLwkgPEQ8InEjaOC/gW0Hb59FkHrNIJQW1GfX3r5oXa6hXhImxqey1ZTj08/Z+wlKave+WguVNuAjjoYZT7+e38AnEca35yTbzg45cF9DVxwMofbXBZhX3VZbkYLwIolzeiRqbCTwG1Gi3RsPpDkGF4uWmIe97o+j3AE6+moSylJNtPyLYfXXMCZcu5G0pPEED7/26lLMMPDcPu+L0+0yJhEB5XqGvwkEHHh/dr9NN9flyo5tU9kasZtHjEdlh50NXQ3QpgCrtadilrdw2KEHKc9arWc2NgSLx2wKqGsyvMDghVrt54PTqjo6lUxZiHhe24hAjbeuN88ELEiPB/a9BAgayBIdmkREXVUHRCCThu0MDa3p6/WWouVOGAVS48ST0pFIsRksitpZmKkl2x3wst3eTB0sBkrxin3fGyNhKmsreHiWb234I1Hl+xrt7S1NGqF/angTXcFSjWmm3FiVoXIan+W5Zd0dieXORNwy43SVPNVaQqcBDTc8CqkMEorUXYffqUJ8gvGReKFysI+Bl/Me781qUEJRXXBpd4GIgEHzUKIpzyXh2xqBXdo9fUgblvDCUsfShBxssqkftez37W4KhttCXwsLgEpOSyXu1ArScK7TwA3AvLRrJza0g0mvL1KtNU1JY31/QkmeHZ2Sd77SkrWHf7gg/9Z3XO6jlgtRYDQ/YfOAfyM5X1VERjZlNcklKvmZPSeWHamzgeTUTROI6WmG9P6mjPy4YDCeViw7MWIfFXC/6YXErnVbIne7wG/ezPpsATNm//k28jnvP96Nl6e1M7AivW9D3fNwFXJzyrABmBQws7KjwsSlLgBAoK/CE+A999vMKPiEM7YLWwMMyunnlIlxhZs/348rUI0YD37Hls+a57Xw5f9720+7Fl++auxAtuWPRrxMFh4p5Xd9R2wKplSUK21QU1xW/amTm1I7D0+fbGyswcOWBlZEzc44WKw9JZTspezkiupcDWc8BqG829WeHl2JsDliMHLEcOWI4cOWA5csBy5IDlyJEDliMHLEcOWC1POUb96FTtGUZ0wCoWWy0zEgespiemtJNXaVbXRhzLZbY4YE00wkqIOc/zHMdqNTaWu/7uOFZrIsYzyOQN1l2OWh9YXgI1/OKWLVsef/zxnp6ezs7OW2+99aGHHtq6dSvtOnXq1MDAwN13390TEPb29vZ+8sknucDrwIEDS5Ys+eCDD8b/bKxYseIfI3LAyoff4A1mGvM9bdq0a6+9tiMggODhhx/GnDVM+wRuOlS66qqrXn/9dew9ePAgoNZho66urvGjikc7TjTgKoB4HrwDVj2Xh57vqZWADDzNSV/fv3+/BikiQAqzpaGKdtF78DArxLOPfMGCBRlh2vC0Dlg5ExDDD306aSyB/d3gc3J2wb2WBIS9q1at4l3XXXfd7Nmz8XPYdddddzFLG49ivnbtWobpbbfdNh4Fv1arOWDlRhBzdB/5hmL6H44IYlEyGKu4kQ86CFxK7mLMXX311RqMDgY0/kt49tlnMU6gqtmzmbaFA1ZuEpDlFG4lmM26dXqbskOHDmE7H4P/YBLafPBJNGGEXVDh+bv4uZK4OZwoLJYefPBBKcJSnnjGBwh3n209YAUKlgTWAZXuuOMOnioYB7wdvyXfW6cZ51++fDmbaaYVSR9pDPg/MjJiPQm+SGeACN68eTN/iwgHOGDlSZgGqT8lzS4fLPUwYlqYqo5sJIWpda/kgoSGBx54IIsNAWSkqIDQ9kz1EeodoMYfIfEdsPKk1atXy3vd8HgJI+jgTQErHWcasKSAtn5RAsgKLHK8QfdKGoBEGwNLKu/QCB2wxkgAB99csuDSVROwND4eyjIBS1Ptpa+h4S65l4EFXiVRhWNIMYeQlRYGDziJY0GGyvPDIrnpppuAG7mR3juOlTNJtUnTx5PgJUUSyUdSlaSORVvI4oPiD14o2dJBQYsXL9Y4Fn5OckGp9pFcY1hMmjSJNKokjiWNEjxCrH7hhPKJwl4HrIkAVroNxfMqrb/sVqGmxoGpSL2eNt5www1soppqH6CD7UAGW69WYH388cempJOjYrg7jlUssF577bWmlH0ShVmAhWmTwJLANYGFaCP/xCOPPJKFiZrAktqVpr0xOeW9QJLRPVLGsyv7CMXICAwBi9hMOsdKAhamn4KVvCUL1pOAxW4UnMf0QdAxDlhFkVTGYSWxOyeJ5E2XPvRcRCHxFQks056wSmorsOSPErBMB5gDVoEkQzHpTEuyN037wXyQYpQOLNNVxoYbAwvgTveA4AAth8eqYwGUGi90onBCCTddizHDl2MyCZ4nuuOmHzIvjqVNLVQubTDwmoK5AnMQlClWobwuqINa3gSuUXo0HLAKob6+Pgka3HEwJzzQAAHmFZCie832YHd3tyaVcgSW3EhODQCIWBR4lZZDke4glcx46tSpuBY6DwzGW265RT5ODlhFERtuDQmoMl0ATSnvKcDiJBwzM0w6pTQlTwMWwx0nhPdc87Zbs4McsAok8qGnB2FgCSZZWGPgWNhl5Vigb7/9ltJ1kkZihnTMUI/pfJdnuPPOOx2wJs5IBAgociIJwRBEVJJc80T8LRaUGrCwC/xDczcgnEzfwi7z/NhrDub222/XjgSweC+ySc2LwuD5APwQLgf4o2/hI/5jhPUovEgxH9rlgDV2svrZUQGBtM8VAeG9lUuN5/xNfXfbtm3wn2Ek+D/mkQBedEVJJ3F1hdWAphukA1b7TnbLoM0By6G5NMBq27ZPrk7acSxHDliOUTlgORob/toQmh153b4sXTryauqCuCEXTl1ZdiUvJ8t1YeRI95uYkV9ZxpwPx8KdeiiiFIchH5Mlgy/l+pNiNRNw32WQGxHoZ555Bm5xHg/eUI4DFcGa6VZXZOTpF4WsiiIYakcuAEdknuNfWkxXzoRW9VAtYEnCw8NJDRyB1uLTMvZcTmChSvbWiDJmxk40x0rqkqAR332k4FUXWCkFhhohaC0zYMsGLJlXCAHdCsAqlGNlZOxj4/8mqigcjmQE5FmY3Uq0+g7uN5EFWEUvSi2BlXtLtwkFVpIobPYOTsBzn9SbVJbYa7WBRLh82XvCWldopohdEZdHRmCN7adLASy+APADafFZuzYmAYt6gXAzD6qu4bNRriafgRtyWLt6JJHMI02p2NHq6MHSuHTCHLkciTURXp5WXhEPW/YyMe8GmxE4BuNHPgXvpV5RRFAZtX4k44RyWYCV1LwPR9K9sAILb/j6uVgZU45bpuUug2CNUo8XU0OidjTpLgNsl9nD6bKDk6ggCsHVGOtaAxwtHZl65pgWJd7jwTAPxkm0pjrSTpfVkWxq4BitlsTsOWAW05YCWLgvmmuHKQlYuGvpzfvkLCZxLFkFn3Q2c27kJKVnVslaHTOh2SQcoJ1QikKM0MQ3TTCrZYyt999/P2nYYIfXXHMNVwbwb0mWKa/aBFZKVnRZgEX3Be9xJbfaiIcurUKtzRp17sOVa3nAXO1uBZbWXoFPJZt2aC0CtV0gM9UzSSMxuz+m8DnrI5EySK0biuyTSw1nqB8Jvqh9K+kxk5wJybRUOpvSHKWkHCsLyWdL1gdr8kWWDXJfNZoeuilJt1KeChPDthhbaqz0yHIgk1VIQqonH4lvjdOeJYjI7jT4dRO4+Mr9998vRyg5pexHYt4NzTil5Gm6cOqbIlVGktdol0KMdvy2wpUHFj+O1j4ZUldIUYGxkRsVa88cdkHLTpJi2MsDSC9V0KZhnMAyi6plEwq+Lil/rcJaK9m1PmZJUr5iViExaiJsv02QCSyu4SQeszagTwTJRhqkxTfUsfhIKU34p1H4oA2ea2PSgSUbLVOlwziBZWpg6F+vjURW97/44ovWc/KDkQSsJP7agn4s1rFkS4+k3o0cMyHzPguwzJqZJM1UKwVLd41K46Dhk201MFM8cNYyr6RaNOu3Mj5m1QaWlX9qHAvHSGBdlUrcN/tKAUvadA3bzpArC2fmgHRD1y57KORIWLGTz1WzwEoqkmtlzzsKudIbuWT3vBcHLJ5Lze1JjhXrV+SiGFKrS+pTokGE6wdlay6rYgclLF0UjgdY41HhcwZWuoPHBJZUEXASaz8gPKmYJ2tTBlmJynZQRmDxCTNyrLrRiZScnCYL0XywUC7Zq5cS0rGKQokbgnKKi79ZYDVEbYU5luZ/QjIT+1e1GZIGYEOOpS040JBjaQIoheRaJqzIw9FPpgZsNM0Hi66kGUUhiO0bcCwzopDejyQdWFbeo5mcwBm2pBeXVymkg4vR/Ey0wpvWpdjaIlbeSnp2SQEqQsfi4zXvUXprCak4y0ZFZlCLORadPOX+yH4kGYGVEndK725f7Vgh+zCTrMKmQjrF6VjS9cDu8qQx4wBeGDG78m4dienj5d/F9jHrWFYGbLqprwyw6KbjjlAri3Qdi008ilhp7kGwHLPfBnf+kDoWVKurAzJ1LK2ZB30LKho320gShc223MCArQ1CqEcIBmNd6QQDlqEVq1VII9H2UjaOeXMIc/RxypQpUoDyYSawtCYo8iGhkFpZOFaO1gTuArXKwP9cVuEqmjBIjJm6leQ7ZvM2Aqz0W9w6sNkbnnQkmCv1uy+X8l4JmpgarLx+pWF1UMlvSEf5p6rqQ5qwS5gALE40xypPN4csY2iN5yEpebokV+QqoavKz6yLJLaIKGxDOTUx11UV3p8nsMb2e1mq7x3OJvLM4zcknSh05HQsRw5Yjhw5YDlywHLkgOXIkQOWIwcsR9Wn/wfuaaoqy5WhXAAAAABJRU5ErkJggg==
+      mediatype: image/png
+  install:
+    spec:
+      deployments:
+      - name: consul-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: consul-operator
+          template:
+            metadata:
+              labels:
+                name: consul-operator
+            spec:
+              containers:
+                - env:
+                  - name: CHART_NAME
+                    value: "consul"
+                  - name: CHART_VERSION
+                    value: "v2.15.0"
+                  - name: WATCH_NAMESPACE
+                    valueFrom:
+                      fieldRef:
+                        fieldPath: metadata.annotations['olm.targetNamespaces']
+                  image: harbor.alauda.cn/3rdparty/consul-operator:v2.15.0
+                  imagePullPolicy: Always
+                  name: consul-operator
+                  resources:
+                    limits:
+                      cpu: "1"
+                      memory: 1Gi
+                    requests:
+                      cpu: 100m
+                      memory: 300Mi
+                  terminationMessagePath: /dev/termination-log
+                  terminationMessagePolicy: File
+              serviceAccountName: consul-operator
+      clusterPermissions:
+        - rules:
+            - apiGroups:
+                - extensions
+              resources:
+                - ingresses
+              verbs:
+                - '*'
+            - apiGroups:
+                - rbac.authorization.k8s.io
+              resources:
+                - clusterroles
+                - roles
+                - clusterrolebindings
+                - rolebindings
+              verbs:
+                - '*'
+            - apiGroups:
+                - apiextensions.k8s.io
+              resources:
+                - customresourcedefinitions
+              verbs:
+                - '*'
+            - apiGroups:
+                - batch
+              resources:
+                - jobs
+              verbs:
+                - '*'
+            - apiGroups:
+                - ''
+              resources:
+                - pods
+                - services
+                - endpoints
+                - persistentvolumeclaims
+                - events
+                - configmaps
+                - secrets
+                - serviceaccounts
+                - nodes
+              verbs:
+                - '*'
+            - apiGroups:
+                - apps
+              resources:
+                - deployments
+                - daemonsets
+                - replicasets
+                - statefulsets
+              verbs:
+                - '*'
+            - apiGroups:
+                - ''
+              resources:
+                - namespaces
+              verbs:
+                - get
+            - apiGroups:
+                - ''
+              resources:
+                - configmaps
+                - secrets
+              verbs:
+                - '*'
+            - apiGroups:
+              - operator.alauda.io
+              resources:
+              - '*'
+              verbs:
+              - create
+              - delete
+              - get
+              - list
+              - patch
+              - update
+              - watch
+            - apiGroups:
+              - storage.k8s.io
+              resources:
+              - storageclasses
+              verbs:
+              - get
+              - list
+          serviceAccountName: consul-operator
+    strategy: deployment
+  installModes:
+    - {supported: true, type: OwnNamespace}
+    - {supported: true, type: SingleNamespace}
+    - {supported: false, type: MultiNamespace}
+    - {supported: true, type: AllNamespaces}
+  keywords:
+  - Kubernetes
+  - Consul
+  - MicroService
+  labels:
+    name: consul-operator
+  links:
+  - name: Documentation,
+    url: https://www.consul.io/docs/k8s
+  - name: Github,
+    url: https://github.com/hashicorp/consul-helm
+  maintainers:
+  - email: jcwang@alauda.io
+    name: GavinWang
+  maturity: alpha
+  minKubeVersion: 1.11.0
+  provider:
+    name: System
+  selector:
+    matchLabels: {}
+  skips: []
+  version: "1.0"
+

@@ -1,0 +1,145 @@
+// https://jenkins.io/doc/book/pipeline/syntax/
+@Library('alauda-cicd') _
+
+// global variables for pipeline
+def GIT_BRANCH
+def GIT_COMMIT
+// image can be used for promoting...
+def DEBUG = false
+def RELEASE_VERSION
+def RELEASE_BUILD
+def PROXY_CREDENTIALS
+def release
+
+pipeline {
+	// 运行node条件
+	// 为了扩容jenkins的功能一般情况会分开一些功能到不同的node上面
+	// 这样每个node作用比较清晰，并可以并行处理更多的任务量
+	agent { label 'tools' }
+
+
+	//(optional) 环境变量
+	environment {
+		FOLDER = '$WORKSPACE'
+
+
+		PROJECT = 'common'
+		PIPELINE = 'chart-operator-images'
+	}
+	// stages
+	stages {
+		stage('Checkout') {
+			steps {
+				script {
+					// checkout code
+					dir(FOLDER) {
+						container('tools') {
+							// checkout code
+							def scmVars
+							retry(2) { scmVars = checkout scm }
+							release = deploy.release(scmVars)
+							GIT_COMMIT = "${scmVars.GIT_COMMIT}"
+							GIT_BRANCH = "${scmVars.GIT_BRANCH}"
+							env.GIT_VERSION = sh (script: "git describe ${GIT_COMMIT} --always --tags| sed 's/-/./2' | sed 's/-/./2'",returnStdout: true).trim()
+							RELEASE_BUILD = release.version
+							RELEASE_VERSION = release.majorVersion
+							// echo "release ${RELEASE_VERSION} - release build ${RELEASE_BUILD}"
+							echo """
+									release ${RELEASE_VERSION}
+									version ${release.version}
+									is_release ${release.is_release}
+									is_build ${release.is_build}
+									is_master ${release.is_master}
+									deploy_env ${release.environment}
+									auto_test ${release.auto_test}
+									environment ${release.environment}
+									majorVersion ${release.majorVersion}
+									git_version ${env.GIT_VERSION}
+								"""
+							// auto by jenkins
+							subject = sh script: "git log -n 1 --pretty=format:'%s'", label: "git log -n 1 --pretty=format:'%s'", returnStdout: true
+							shouldTrigger = true
+							if (subject.contains('Auto-commit by jenkins')) {
+									shouldTrigger = false
+							}
+
+							echo "should trigger? ${shouldTrigger}"
+						}
+					}
+				}
+			}
+		}
+				stage("Validate YAML"){
+        			steps{
+        				script {
+        					dir(FOLDER) {
+        						container('tools'){
+        							sh """
+        							        curl -L  https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz -o kubeval-linux-amd64.tar.gz
+                                            tar xf kubeval-linux-amd64.tar.gz
+                                            cp kubeval /usr/local/bin
+                                            kubeval -d operators --ignored-filename-patterns=annotations.yaml --ignore-missing-schemas
+        							"""
+        						}
+        					}
+        				}
+        			}
+        		}
+		stage("Build Index"){
+			steps{
+				script {
+					dir(FOLDER) {
+						container('tools'){
+							withCredentials([usernamePassword(credentialsId: 'cpaas-system-global-credentials-alaudak8s', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+								retry(3) {
+									sh script: "docker login harbor-b.alauda.cn -u $USERNAME -p $PASSWORD", label: "docker login harbor-b.alauda.cn"
+								}
+							}
+							def repositoryAddr = 'harbor-b.alauda.cn/3rdparty/operators-index'.replace("http://","").replace("https://","")
+							env.IMAGE_REPO = repositoryAddr
+							def tag = env.GIT_VERSION
+							def incubatorimage = "${IMAGE_REPO}:${tag}"
+							sh """
+									curl -L https://nexus-b.alauda.cn/repository/raw-releases/operator-sdk/operator-sdk-v0.18.1-x86_64-linux-gnu -o /usr/bin/operator-sdk
+									chmod +x /usr/bin/operator-sdk
+									curl -L https://nexus-b.alauda.cn/repository/raw-releases/sqlite3/sqlite3 -o /usr/bin/sqlite3
+									chmod +x /usr/bin/sqlite3
+									curl -L https://nexus-b.alauda.cn/repository/raw-releases/opm-linux/opm-linux-amd64.tar.gz | tar xzvf - -C /usr/bin
+									make all INDEX_TAG=${tag} REGISTRY=harbor-b.alauda.cn/3rdparty
+							"""
+						}
+					}
+				}
+			}
+		}
+		stage('Chart Update') {
+			when {
+				expression {
+					release.chartBranch != '' && !params.DEBUG
+				}
+			}
+			steps {
+				script {
+					// echo "will trigger charts-pipeline using branch ${release.chartBranch}"
+					// please don't forget to update the chart repo if you have changed below tags
+					// see also https://gitlab-ce.alauda.cn/alauda/charts/blob/60ad14cf037bbc0c901e0203bcc831d53e3a7c8e/chartsupdate.yaml#L811
+					def component = "operators_index=${GIT_VERSION}"
+					if (shouldTrigger) {
+						echo "Upload charts..."
+						deploy.triggerChartUpdate([
+							[
+								project: PROJECT,
+								pipeline: PIPELINE,
+								component: component,
+								branch: release.chartBranch,
+								majorVersion: release.majorVersion,
+								prBranch: release.change["branch"],
+								version: release.version
+							]
+						])
+					}
+				}
+			}
+		}
+	}
+}

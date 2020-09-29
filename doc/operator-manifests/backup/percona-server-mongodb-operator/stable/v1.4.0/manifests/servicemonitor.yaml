@@ -1,0 +1,25 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mongod-exporter
+  namespace: operators
+  labels:
+    prometheus: kube-prometheus
+    release: mongod-exporter
+spec:
+  selector:
+    matchExpressions:
+      - key: app.kubernetes.io/component  # svc的label
+        operator: In
+        values:
+          - mongod
+  namespaceSelector:
+    matchNames:
+      - test
+      - operators
+      - default
+  jobLabel: mongod-exporter
+  endpoints:
+    - interval: 30s
+      path: /metrics  #若为非标path，则设置此项
+      port: mongod-exporter  # svc 输出采集指标的port的name

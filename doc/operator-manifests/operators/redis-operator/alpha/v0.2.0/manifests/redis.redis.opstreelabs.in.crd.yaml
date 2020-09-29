@@ -1,0 +1,185 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: redis.redis.opstreelabs.in
+spec:
+  group: redis.opstreelabs.in
+  names:
+    kind: Redis
+    listKind: RedisList
+    plural: redis
+    singular: redis
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: Redis 定义了 redis API 的数据结构
+      properties:
+        apiVersion:
+          description: 'APIVersion 定义了此对象表示形式的版本化结构。服务端应将已识别的结构转换为最新的内部值，并可能拒绝无法识别的值。更多信息: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind 是一个字符串值，表示此 REST 资源类型。服务端可以从客户端的端点推断出该内容并向提交请求。不能更新。使用驼峰式写法。更多信息: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: RedisSpec Redis 期望的状态
+          # type: object
+          properties:
+            mode:
+              type: string
+              description: Redis 安装模式，standalone 或者 cluster
+              pattern: "cluster|standalone"
+              enum:
+              - cluster
+              - standalone
+            size:
+              type: integer
+              description: Redis 集群节点数量，集群模式下可用
+              format: int32
+            global:
+              type: object
+              description: 全局配置
+              properties:
+                image:
+                  type: string
+                  description: redis 镜像
+                imagePullPolicy:
+                  type: string
+                  description: 镜像拉取策略，IfNotPresent 或者 Always
+                  pattern: "IfNotPresent|Always"
+                password:
+                  type: string
+                  description: Redis 密码
+                resources:
+                  type: object
+                  description: 资源使用限制
+                  properties:
+                    requests:
+                      type: object
+                      description: 资源请求值设置
+                      properties:
+                        cpu:
+                          type: string
+                          description: CPU 请求值
+                        memory:
+                          type: string
+                          description: 内存请求值
+                    limits:
+                      type: object
+                      description: 资源限制值设置
+                      properties:
+                        cpu:
+                          type: string
+                          description: CPU 限制值
+                        memory:
+                          type: string
+                          description: 内存限制值
+            service:
+              type: object
+              description: 单点集群内部路由设置，集群模式下不用设置该项
+              properties:
+                type:
+                  type: string
+                  description: 内部路由类型
+            master:
+              type: object
+              description: 集群模式下，主集群相关设置，单点模式下不用设置该项
+              properties:
+                service:
+                  type: object
+                  description: 内部路由设置
+                  properties:
+                    type:
+                      type: string
+                      description: 内部路由类型
+            slave:
+              type: object
+              description: 集群模式下，备集群相关设置，单点模式下不用设置该项
+              properties:
+                service:
+                  type: object
+                  description: 内部路由设置
+                  properties:
+                    type:
+                      type: string
+                      description: 内部路由类型
+            redisExporter:
+              type: object
+              description: redis-exporter 设置
+              properties:
+                enabled:
+                  type: boolean
+                  description: 是否开启 Redis exporter
+                image:
+                  type: string
+                  description: Redis exporter 镜像
+                imagePullPolicy:
+                  type: string
+                  description: 镜像拉取策略
+                  pattern: "IfNotPresent|Always"
+                resources:
+                  type: object
+                  properties:
+                    requests:
+                      type: object
+                      properties:
+                        cpu:
+                          type: string
+                          description: CPU 请求值
+                        memory:
+                          type: string
+                          description: 内存请求值
+                    limits:
+                      type: object
+                      properties:
+                        cpu:
+                          type: string
+                          description: CPU 限制值
+                        memory:
+                          type: string
+                          description: 内存限制值
+            serviceMonitor:
+              type: object
+              description: ServiceMonitor 监控配置
+              properties:
+                enabled:
+                  type: boolean
+                  description: ServiceMonitor 是否开启
+                namespace:
+                  type: string
+                  description: Prometheus 所在命名空间，如果安装的 Promethues 对命名空间有要求，则需要设置此项。
+                interval:
+                  type: string
+                  description: '数据抓取间隔时间。参考: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint'
+                scrapeTimeout:
+                  type: string
+                  description: '数据抓取超时时间。参考: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint'
+                labels:
+                  type: object
+                  description: ServiceMonitor 标签
+            priorityClassName:
+              type: string
+              description: Redis 部署优先类名称
+            storage:
+              type: object
+              description: '存储定义，参考: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims'
+            nodeSelector:
+              type: object
+              description: Redis pod 调度时节点选择器，key/value 结构
+            securityContext:
+              type: object
+              description: '安全上下文设置，参考: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/'
+            affinity:
+              type: object
+              description: '亲和性设置，参考: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity'
+        status:
+          description: Redis 状态
+          type: object
+      type: object
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true

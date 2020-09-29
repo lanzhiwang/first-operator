@@ -1,0 +1,5 @@
+.idea/
+index_build_tmp*
+index_tmp*
+index.Dockerfile*
+bundle.Dockerfile

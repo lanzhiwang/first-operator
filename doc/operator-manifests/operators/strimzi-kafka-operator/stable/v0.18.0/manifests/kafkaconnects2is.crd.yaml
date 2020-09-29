@@ -1,0 +1,779 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  labels: {app: strimzi, strimzi.io/crd-install: 'true'}
+  name: kafkaconnects2is.kafka.strimzi.io
+spec:
+  additionalPrinterColumns:
+  - {JSONPath: .spec.replicas, description: 所需Kafka Connect副本数量,
+    name: Desired replicas, type: integer}
+  group: kafka.strimzi.io
+  names:
+    categories: [strimzi]
+    kind: KafkaConnectS2I
+    listKind: KafkaConnectS2IList
+    plural: kafkaconnects2is
+    shortNames: [kcs2i]
+    singular: kafkaconnects2i
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      properties:
+        spec:
+          description: Kafka Connect源到镜像（S2I）集群的规范。
+          properties:
+            affinity:
+              description: Pod的亲和规则
+              properties:
+                nodeAffinity:
+                  properties:
+                    preferredDuringSchedulingIgnoredDuringExecution:
+                      items:
+                        properties:
+                          preference:
+                            properties:
+                              matchExpressions:
+                                items:
+                                  properties:
+                                    key: {type: string}
+                                    operator: {type: string}
+                                    values:
+                                      items: {type: string}
+                                      type: array
+                                  type: object
+                                type: array
+                              matchFields:
+                                items:
+                                  properties:
+                                    key: {type: string}
+                                    operator: {type: string}
+                                    values:
+                                      items: {type: string}
+                                      type: array
+                                  type: object
+                                type: array
+                            type: object
+                          weight: {type: integer}
+                        type: object
+                      type: array
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                      properties:
+                        nodeSelectorTerms:
+                          items:
+                            properties:
+                              matchExpressions:
+                                items:
+                                  properties:
+                                    key: {type: string}
+                                    operator: {type: string}
+                                    values:
+                                      items: {type: string}
+                                      type: array
+                                  type: object
+                                type: array
+                              matchFields:
+                                items:
+                                  properties:
+                                    key: {type: string}
+                                    operator: {type: string}
+                                    values:
+                                      items: {type: string}
+                                      type: array
+                                  type: object
+                                type: array
+                            type: object
+                          type: array
+                      type: object
+                  type: object
+                podAffinity:
+                  properties:
+                    preferredDuringSchedulingIgnoredDuringExecution:
+                      items:
+                        properties:
+                          podAffinityTerm:
+                            properties:
+                              labelSelector:
+                                properties:
+                                  matchExpressions:
+                                    items:
+                                      properties:
+                                        key: {type: string}
+                                        operator: {type: string}
+                                        values:
+                                          items: {type: string}
+                                          type: array
+                                      type: object
+                                    type: array
+                                  matchLabels: {type: object}
+                                type: object
+                              namespaces:
+                                items: {type: string}
+                                type: array
+                              topologyKey: {type: string}
+                            type: object
+                          weight: {type: integer}
+                        type: object
+                      type: array
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                      items:
+                        properties:
+                          labelSelector:
+                            properties:
+                              matchExpressions:
+                                items:
+                                  properties:
+                                    key: {type: string}
+                                    operator: {type: string}
+                                    values:
+                                      items: {type: string}
+                                      type: array
+                                  type: object
+                                type: array
+                              matchLabels: {type: object}
+                            type: object
+                          namespaces:
+                            items: {type: string}
+                            type: array
+                          topologyKey: {type: string}
+                        type: object
+                      type: array
+                  type: object
+                podAntiAffinity:
+                  properties:
+                    preferredDuringSchedulingIgnoredDuringExecution:
+                      items:
+                        properties:
+                          podAffinityTerm:
+                            properties:
+                              labelSelector:
+                                properties:
+                                  matchExpressions:
+                                    items:
+                                      properties:
+                                        key: {type: string}
+                                        operator: {type: string}
+                                        values:
+                                          items: {type: string}
+                                          type: array
+                                      type: object
+                                    type: array
+                                  matchLabels: {type: object}
+                                type: object
+                              namespaces:
+                                items: {type: string}
+                                type: array
+                              topologyKey: {type: string}
+                            type: object
+                          weight: {type: integer}
+                        type: object
+                      type: array
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                      items:
+                        properties:
+                          labelSelector:
+                            properties:
+                              matchExpressions:
+                                items:
+                                  properties:
+                                    key: {type: string}
+                                    operator: {type: string}
+                                    values:
+                                      items: {type: string}
+                                      type: array
+                                  type: object
+                                type: array
+                              matchLabels: {type: object}
+                            type: object
+                          namespaces:
+                            items: {type: string}
+                            type: array
+                          topologyKey: {type: string}
+                        type: object
+                      type: array
+                  type: object
+              type: object
+            authentication:
+              description: Kafka Connect的身份验证配置。
+              properties:
+                accessToken:
+                  description: 链接到包含从授权服务器获得的访问令牌的Kubernetes Secret。
+                  properties:
+                    key: {description: Kubernetes Secret 中存储secret值的密匙。, type: string}
+                    secretName: {description: 包含密钥值的Kubernetes Secret的名称。, type: string}
+                  required: [key, secretName]
+                  type: object
+                accessTokenIsJwt: {description: 配置是否将访问令牌视为JWT。 如果授权服务器返回不透明令牌，则应将其设置为“ false”。 默认为true。, type: boolean}
+                certificateAndKey:
+                  description: 引用包含证书和私钥对的“Secret”。
+
+                  properties:
+                    certificate: {description: Secret文件证书的名称。, type: string}
+                    key: {description: Secret中私钥的名称。,
+                      type: string}
+                    secretName: {description: 包含证书的Secret的名称。, type: string}
+                  required: [certificate, key, secretName]
+                  type: object
+                clientId: {description: Kafka客户端可以用来对OAuth服务器进行身份验证并使用令牌端点URI的OAuth客户端ID。, type: string}
+                clientSecret:
+                  description: 链接到包含OAuth客户端秘密的Kubernetes, Kafka客户端可以使用它对OAuth服务器进行身份验证，并使用令牌端点URI。
+                  properties:
+                    key: {description: Kubernetes Secret 中存储secret值的密匙。, type: string}
+                    secretName: {description: 包含密钥值的Kubernetes Secret的名称。, type: string}
+                  required: [key, secretName]
+                  type: object
+                disableTlsHostnameVerification: {description: 启用或禁用TLS主机名验证。 默认值为“ false”。, type: boolean}
+                maxTokenExpirySeconds: {description: 设置或限制访问令牌的生存时间为指定的秒数。如果授权服务器返回不透明的令牌，则应该设置此设置。, type: integer}
+                passwordSecret:
+                  description: 引用保存密码的“Secret”。
+                  properties:
+                    password: {description: 密钥中存储密码的密钥的名称。, type: string}
+                    secretName: {description: 包含密码的Secret的名称。, type: string}
+                  required: [password, secretName]
+                  type: object
+                refreshToken:
+                  description: 链接到包含刷新令牌的Kubernetes Secret，该令牌可用于从授权服务器获取访问令牌。
+                  properties:
+                    key: {description: Kubernetes Secret中存储secret值的密匙。, type: string}
+                    secretName: {description: 包含secret值的Kubernetes secret的名称。, type: string}
+                  required: [key, secretName]
+                  type: object
+                scope: {description: 针对授权服务器进行身份验证时要使用的OAuth范围。 某些授权服务器要求对此进行设置。 可能的值取决于授权服务器的配置方式。 默认情况下，在执行令牌端点请求时未指定“作用域”。, type: string}
+                tlsTrustedCertificates:
+                  description: TLS连接到OAuth服务器的受信任证书。
+                  items:
+                    properties:
+                      certificate: {description: Secret中文件证书的名称。, type: string}
+                      secretName: {description: 包含证书的Secret的名称。, type: string}
+                    required: [certificate, secretName]
+                    type: object
+                  type: array
+                tokenEndpointUri: {description: 授权服务器令牌端点URI。, type: string}
+                type:
+                  description: 认证类型。 当前仅支持的类型是`tls`，`scram-sha-512`和`plain`。 `scram-sha-512`类型使用SASL SCRAM-SHA-512身份验证。 “ plain”类型使用SASL PLAIN身份验证。 oauth类型使用SASL OAUTHBEARER身份验证。tls类型使用TLS客户端身份验证。 仅在TLS连接上支持`tls`类型。
+                  enum: [tls, scram-sha-512, plain, oauth]
+                  type: string
+                username: {description: 用于认证的用户名。, type: string}
+              required: [type]
+              type: object
+            bootstrapServers: {description: "引导服务器进行连接。 这应该以_ <主机名> _：_ <端口> _对的逗号分隔列表形式给出。", type: string}
+            buildResources:
+              description: 要保留的CPU和内存资源。
+              properties:
+                limits: {type: object}
+                requests: {type: object}
+              type: object
+            config: {description: 'Kafka Connect配置。 不能设置具有以下前缀的属性：: ssl., sasl., security., listeners,
+                plugin.path, rest., bootstrap.servers, consumer.interceptor.classes,
+                producer.interceptor.classes (以下内容除外：ssl.endpoint.identification.algorithm，ssl.cipher.suites，ssl.protocol，ssl.enabled.protocols。', type: object}
+            externalConfiguration:
+              description: 将数据从Secrets或ConfigMaps传递到Kafka Connect pod并使用它们来配置连接器。
+              properties:
+                env:
+                  description: 允许将数据从Secret或ConfigMap作为环境变量传递到Kafka Connect的Pod中。
+                  items:
+                    properties:
+                      name: {description: 环境变量的名称，该变量将传递给Kafka Connect的Pod。 环境变量的名称不能以“ KAFKA_”或“ STRIMZI_”开头。, type: string}
+                      valueFrom:
+                        description: 环境变量的值，该值将传递给Kafka Connect的Pod。 它可以作为对Secret或ConfigMap字段的引用传递。 该字段必须确切指定一个Secret或ConfigMap。
+                        properties:
+                          configMapKeyRef:
+                            description: 对ConfigMap中的键的引用。
+                            properties:
+                              key: {type: string}
+                              name: {type: string}
+                              optional: {type: boolean}
+                            type: object
+                          secretKeyRef:
+                            description: 引用Secret中的键。
+                            properties:
+                              key: {type: string}
+                              name: {type: string}
+                              optional: {type: boolean}
+                            type: object
+                        type: object
+                    required: [name, valueFrom]
+                    type: object
+                  type: array
+                volumes:
+                  description: 允许将数据从Secret或ConfigMap作为卷传递到Kafka Connect的Pod中。
+                  items:
+                    properties:
+                      configMap:
+                        description: 对ConfigMap中的键的引用。 只需指定一个Secret或ConfigMap。
+                        properties:
+                          defaultMode: {type: integer}
+                          items:
+                            items:
+                              properties:
+                                key: {type: string}
+                                mode: {type: integer}
+                                path: {type: string}
+                              type: object
+                            type: array
+                          name: {type: string}
+                          optional: {type: boolean}
+                        type: object
+                      name: {description: 将被添加到Kafka Connect的Pod的卷的名字。, type: string}
+                      secret:
+                        description: 对Secret的引用。必须指定一个Secret或ConfigMap。
+                        properties:
+                          defaultMode: {type: integer}
+                          items:
+                            items:
+                              properties:
+                                key: {type: string}
+                                mode: {type: integer}
+                                path: {type: string}
+                              type: object
+                            type: array
+                          optional: {type: boolean}
+                          secretName: {type: string}
+                        type: object
+                    required: [name]
+                    type: object
+                  type: array
+              type: object
+            image: {description: docker镜像, type: string}
+            insecureSourceRepository: {description: 如果为true，则使用“本地”参考策略和接受不安全源标签的导入策略配置源存储库。, type: boolean}
+            jvmOptions:
+              description: pod的JVM选项。
+              properties:
+                -XX: {description: -XX选项到JVM的映射。, type: object}
+                -Xms: {description: JVM的-Xms选项。, pattern: '[0-9]+[mMgG]?',
+                  type: string}
+                -Xmx: {description: JVM的-Xmx选项。, pattern: '[0-9]+[mMgG]?',
+                  type: string}
+                gcLoggingEnabled: {description: 指定是否启用垃圾收集日志记录。 默认为false。, type: boolean}
+                javaSystemProperties:
+                  description: 附加系统属性的映射，将使用`-D`选项传递给JVM。
+                  items:
+                    properties:
+                      name: {description: 系统属性名称。, type: string}
+                      value: {description: 系统属性值。, type: string}
+                    type: object
+                  type: array
+              type: object
+            livenessProbe:
+              description: Pod存活性检查
+              properties:
+                failureThreshold: {description: 成功后将被视为探针的最小连续失败数。 默认值为3。最小值为1。, type: integer}
+                initialDelaySeconds: {description: 第一次检查运行状况之前的初始延迟。, minimum: 0, type: integer}
+                periodSeconds: {description: 执行探测的频率（以秒为单位）。 默认为10秒。 最小值为1。, type: integer}
+                successThreshold: {description: 在探测失败后认为是成功的最小连续成功。默认为1。必须是1代表活力。最小值为1。, type: integer}
+                timeoutSeconds: {description: 每次尝试进行健康检查的超时时间。, minimum: 0, type: integer}
+              type: object
+            logging:
+              description: Kafka Connect的日志记录配置。
+              properties:
+                loggers: {description: logger name 与 logger level的映射关系, type: object}
+                name: {description: 用来获取日志配置的“ConfigMap”的名称。, type: string}
+                type:
+                  description: 日志类型，必须是'inline' 或 'external'。
+                  enum: [inline, external]
+                  type: string
+              required: [type]
+              type: object
+            metrics: {description: 'Prometheus JMX导出器配置。 有关此配置结构的详细信息，请参见https://github.com/prometheus/jmx_exporter。', type: object}
+            readinessProbe:
+              description: Pod readiness checking.
+              properties:
+                failureThreshold: {description: 成功后将被视为探针的最小连续失败数。 默认值为3。最小值为1。, type: integer}
+                initialDelaySeconds: {description: 首先检查运行状况之前的初始延迟。, minimum: 0, type: integer}
+                periodSeconds: {description: 执行探测的频率(以秒为单位)。默认为10秒。最小值为1。, type: integer}
+                successThreshold: {description:在探测失败后认为是成功的最小连续成功。默认为1。必须是1代表活力。最小值为1。, type: integer}
+                timeoutSeconds: {description: 每次尝试进行健康检查的超时时间。, minimum: 0, type: integer}
+              type: object
+            replicas: {description: Kafka Connect组中的Pod数。,
+              type: integer}
+            resources:
+              description: CPU和内存资源的最大限制以及请求的初始资源。
+              properties:
+                limits: {type: object}
+                requests: {type: object}
+              type: object
+            template:
+              description: CPU和内存资源的最大限制以及请求的初始资源。Kafka Connect和Kafka Connect S2I资源的模板。模板允许用户指定如何生成“Deployment”、“Pod”和“Service”。
+
+
+              properties:
+                apiService:
+                  description: Kafka Connect API`Service`的模板。
+                  properties:
+                    metadata:
+                      description: 应用于资源的元数据。
+                      properties:
+                        annotations: {description: '应该添加到资源模板的注释。 可以应用于不同的资源，例如StatefulSets，Deployments，Pods和Services。', type: object}
+                        labels: {description: '应添加到资源模板的标签。 可以应用于不同的资源，例如StatefulSets，Deployments，Pods和Service。',
+                          type: object}
+                      type: object
+                  type: object
+                connectContainer:
+                  description: Kafka连接容器的模板。
+                  properties:
+                    env:
+                      description: 应用于容器的环境变量。
+                      items:
+                        properties:
+                          name: {description: 环境变量的键。, type: string}
+                          value: {description: 环境变量的值。, type: string}
+                        type: object
+                      type: array
+                    securityContext:
+                      description: 容器的安全上下文。
+                      properties:
+                        allowPrivilegeEscalation: {type: boolean}
+                        capabilities:
+                          properties:
+                            add:
+                              items: {type: string}
+                              type: array
+                            drop:
+                              items: {type: string}
+                              type: array
+                          type: object
+                        privileged: {type: boolean}
+                        procMount: {type: string}
+                        readOnlyRootFilesystem: {type: boolean}
+                        runAsGroup: {type: integer}
+                        runAsNonRoot: {type: boolean}
+                        runAsUser: {type: integer}
+                        seLinuxOptions:
+                          properties:
+                            level: {type: string}
+                            role: {type: string}
+                            type: {type: string}
+                            user: {type: string}
+                          type: object
+                        windowsOptions:
+                          properties:
+                            gmsaCredentialSpec: {type: string}
+                            gmsaCredentialSpecName: {type: string}
+                          type: object
+                      type: object
+                  type: object
+                deployment:
+                  description: Kafka Connect `Deployment`的模板。
+                  properties:
+                    metadata:
+                      description: 应用于资源的元数据。
+                      properties:
+                        annotations: {description: '应该添加到资源模板的注释。 可以应用于不同的资源，例如StatefulSets，Deployments，Pods和Service。', type: object}
+                        labels: {description: '应添加到资源模板的标签。 可以应用于不同的资源，例如StatefulSets，Deployments，Pods和Service。',
+                          type: object}
+                      type: object
+                  type: object
+                pod:
+                  description: Kafka Connect `Pods`的模板。
+                  properties:
+                    affinity:
+                      description: Pod的亲和规则
+                      properties:
+                        nodeAffinity:
+                          properties:
+                            preferredDuringSchedulingIgnoredDuringExecution:
+                              items:
+                                properties:
+                                  preference:
+                                    properties:
+                                      matchExpressions:
+                                        items:
+                                          properties:
+                                            key: {type: string}
+                                            operator: {type: string}
+                                            values:
+                                              items: {type: string}
+                                              type: array
+                                          type: object
+                                        type: array
+                                      matchFields:
+                                        items:
+                                          properties:
+                                            key: {type: string}
+                                            operator: {type: string}
+                                            values:
+                                              items: {type: string}
+                                              type: array
+                                          type: object
+                                        type: array
+                                    type: object
+                                  weight: {type: integer}
+                                type: object
+                              type: array
+                            requiredDuringSchedulingIgnoredDuringExecution:
+                              properties:
+                                nodeSelectorTerms:
+                                  items:
+                                    properties:
+                                      matchExpressions:
+                                        items:
+                                          properties:
+                                            key: {type: string}
+                                            operator: {type: string}
+                                            values:
+                                              items: {type: string}
+                                              type: array
+                                          type: object
+                                        type: array
+                                      matchFields:
+                                        items:
+                                          properties:
+                                            key: {type: string}
+                                            operator: {type: string}
+                                            values:
+                                              items: {type: string}
+                                              type: array
+                                          type: object
+                                        type: array
+                                    type: object
+                                  type: array
+                              type: object
+                          type: object
+                        podAffinity:
+                          properties:
+                            preferredDuringSchedulingIgnoredDuringExecution:
+                              items:
+                                properties:
+                                  podAffinityTerm:
+                                    properties:
+                                      labelSelector:
+                                        properties:
+                                          matchExpressions:
+                                            items:
+                                              properties:
+                                                key: {type: string}
+                                                operator: {type: string}
+                                                values:
+                                                  items: {type: string}
+                                                  type: array
+                                              type: object
+                                            type: array
+                                          matchLabels: {type: object}
+                                        type: object
+                                      namespaces:
+                                        items: {type: string}
+                                        type: array
+                                      topologyKey: {type: string}
+                                    type: object
+                                  weight: {type: integer}
+                                type: object
+                              type: array
+                            requiredDuringSchedulingIgnoredDuringExecution:
+                              items:
+                                properties:
+                                  labelSelector:
+                                    properties:
+                                      matchExpressions:
+                                        items:
+                                          properties:
+                                            key: {type: string}
+                                            operator: {type: string}
+                                            values:
+                                              items: {type: string}
+                                              type: array
+                                          type: object
+                                        type: array
+                                      matchLabels: {type: object}
+                                    type: object
+                                  namespaces:
+                                    items: {type: string}
+                                    type: array
+                                  topologyKey: {type: string}
+                                type: object
+                              type: array
+                          type: object
+                        podAntiAffinity:
+                          properties:
+                            preferredDuringSchedulingIgnoredDuringExecution:
+                              items:
+                                properties:
+                                  podAffinityTerm:
+                                    properties:
+                                      labelSelector:
+                                        properties:
+                                          matchExpressions:
+                                            items:
+                                              properties:
+                                                key: {type: string}
+                                                operator: {type: string}
+                                                values:
+                                                  items: {type: string}
+                                                  type: array
+                                              type: object
+                                            type: array
+                                          matchLabels: {type: object}
+                                        type: object
+                                      namespaces:
+                                        items: {type: string}
+                                        type: array
+                                      topologyKey: {type: string}
+                                    type: object
+                                  weight: {type: integer}
+                                type: object
+                              type: array
+                            requiredDuringSchedulingIgnoredDuringExecution:
+                              items:
+                                properties:
+                                  labelSelector:
+                                    properties:
+                                      matchExpressions:
+                                        items:
+                                          properties:
+                                            key: {type: string}
+                                            operator: {type: string}
+                                            values:
+                                              items: {type: string}
+                                              type: array
+                                          type: object
+                                        type: array
+                                      matchLabels: {type: object}
+                                    type: object
+                                  namespaces:
+                                    items: {type: string}
+                                    type: array
+                                  topologyKey: {type: string}
+                                type: object
+                              type: array
+                          type: object
+                      type: object
+                    imagePullSecrets:
+                      description: 用于拉取此Pod所使用的任何镜像的同一命名空间中的secrets的引用列表。
+                      items:
+                        properties:
+                          name: {type: string}
+                        type: object
+                      type: array
+                    metadata:
+                      description: 应用于资源的元数据。
+                      properties:
+                        annotations: {description: '应该添加到资源模板中的注释。可以应用于不同的资源，如：`StatefulSets`, `Deployments`, `Pods`, `Services`。', type: object}
+                        labels: {description: '应该添加到资源模板中的标签。可以应用于不同的资源。如：`StatefulSets`, `Deployments`, `Pods`, and `Services`.',
+                          type: object}
+                      type: object
+                    priorityClassName: {description: pod将被分配到的优先级类的名称。, type: string}
+                    schedulerName: {description: '用于分发此“Pod”的调度器的名称。如果未指定，将使用默认的调度器。', type: string}
+                    securityContext:
+                      description: 配置pod级安全属性和公共容器设置。
+                      properties:
+                        fsGroup: {type: integer}
+                        runAsGroup: {type: integer}
+                        runAsNonRoot: {type: boolean}
+                        runAsUser: {type: integer}
+                        seLinuxOptions:
+                          properties:
+                            level: {type: string}
+                            role: {type: string}
+                            type: {type: string}
+                            user: {type: string}
+                          type: object
+                        supplementalGroups:
+                          items: {type: integer}
+                          type: array
+                        sysctls:
+                          items:
+                            properties:
+                              name: {type: string}
+                              value: {type: string}
+                            type: object
+                          type: array
+                        windowsOptions:
+                          properties:
+                            gmsaCredentialSpec: {type: string}
+                            gmsaCredentialSpecName: {type: string}
+                          type: object
+                      type: object
+                    terminationGracePeriodSeconds: {description: 宽限期是指在pod中运行的进程收到终止信号后的持续时间(以秒为单位)，以及进程被杀死信号强制停止的时间。将此值设置的时间长于进程的预期清理时间。值必须是非负整数。值0表示立即删除。默认30秒。, minimum: 0, type: integer}
+                    tolerations:
+                      description: The pod's tolerations.
+                      items:
+                        properties:
+                          effect: {type: string}
+                          key: {type: string}
+                          operator: {type: string}
+                          tolerationSeconds: {type: integer}
+                          value: {type: string}
+                        type: object
+                      type: array
+                  type: object
+                podDisruptionBudget:
+                  description: Kafka Connect `PodDisruptionBudget`的模板。
+                  properties:
+                    maxUnavailable: {description: '允许自动驱逐Pod的最大不可用Pod数量。当“maxUnavailable”或更少的pods数量在驱逐之后不可用时，允许进行Pod驱逐。将此值设置为0可以防止所有自愿驱逐，因此必须手动驱逐pods。默认为1。', minimum: 0, type: integer}
+                    metadata:
+                      description: 应用于“ PodDistruptionBugetTemplate”资源的元数据。
+                      properties:
+                        annotations: {description: '添加到资源模板的注释。 可以应用于不同的资源，例如StatefulSets，Deployments，Pods和Service。', type: object}
+                        labels: {description: '应添加到资源模板的标签。 可以应用于不同的资源，例如StatefulSets，Deployments，Pods和Service。',
+                          type: object}
+                      type: object
+                  type: object
+              type: object
+            tls:
+              description: TLS configuration.
+              properties:
+                trustedCertificates:
+                  description: TLS连接的受信任证书。
+                  items:
+                    properties:
+                      certificate: {description: 机密中文件证书的名称。, type: string}
+                      secretName: {description: 包含证书的Secret的名称。, type: string}
+                    required: [certificate, secretName]
+                    type: object
+                  type: array
+              type: object
+            tolerations:
+              description: Pod的容忍度。
+              items:
+                properties:
+                  effect: {type: string}
+                  key: {type: string}
+                  operator: {type: string}
+                  tolerationSeconds: {type: integer}
+                  value: {type: string}
+                type: object
+              type: array
+            tracing:
+              description: Kafka Connect中跟踪的配置。
+              properties:
+                type:
+                  description: 所使用的跟踪的类型。目前唯一支持的类型是用于jaeger跟踪的“jaeger”。
+                  enum: [jaeger]
+                  type: string
+              required: [type]
+              type: object
+            version: {description: 'Kafka Connect版本。默认为{DefaultKafkaVersion}。请参阅用户文档以了解升级或降级版本所需的流程。', type: string}
+          required: [bootstrapServers]
+          type: object
+        status:
+          description: Kafka Connect源到映像（S2I）集群的状态。
+          properties:
+            buildConfigName: {description: 构建配置的名称。, type: string}
+            conditions:
+              description: 状态条件列表。
+              items:
+                properties:
+                  lastTransitionTime: {description: '上一次状态类型更改的时间。 所需格式为“ yyyy-MM-ddTHH：mm：ssZ”，以UTC时区为准。', type: string}
+                  message: {description: 可读的消息，指示有关条件的最后转换的详细信息。, type: string}
+                  reason: {description: 条件最后一次转换的原因（CamelCase中的一个单词）., type: string}
+                  status: {description: '条件的状态，True,False 或 Unknown.', type: string}
+                  type: {description: '条件的唯一标识符，用于区分资源中的其他条件。', type: string}
+                type: object
+              type: array
+            connectorPlugins:
+              description: 此Kafka Connect deployment中可用的连接器插件列表。
+              items:
+                properties:
+                  class: {description: 连接器插件的类。, type: string}
+                  type: {description: 连接器插件的类型。可用的类型是“sink”和“source”。, type: string}
+                  version: {description: 连接器插件的版本。, type: string}
+                type: object
+              type: array
+            observedGeneration: {description: 最后由operator核对的生成的CRD。, type: integer}
+            url: {description: 用于管理和监控Kafka Connect 连接器的REST API端点的URL。, type: string}
+          type: object
+  version: v1beta1
+  versions:
+  - {name: v1beta1, served: true, storage: true}
+  - {name: v1alpha1, served: true, storage: false}
+

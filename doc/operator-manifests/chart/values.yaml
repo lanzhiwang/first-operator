@@ -1,0 +1,337 @@
+# global: root location for common arguments
+global:
+  registry:
+    # address: registry address
+    address: harbor.alauda.cn
+  # all the images and components used
+  images:
+    # <name>: a component name
+    olm:
+      # repository: image repository for the image
+      repository: 3rdparty/operator-framework/olm
+      # tag: a tag for the component
+      tag: 2c389d2e380c842cbf542820ad4493249164302ddf0e699b0a37105d234e67ee
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    upstream_community_operators:
+      # repository: image repository for the image
+      repository: 3rdparty/operator-framework/upstream-community-operators
+      # tag: a tag for the component
+      tag: v1.0
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    configmap_operator_registry:
+      # repository: image repository for the image
+      repository: 3rdparty/operator-framework/configmap-operator-registry
+      # tag: a tag for the component
+      tag: v1.0
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    operators_index:
+      # repository: image repository for the image
+      repository: 3rdparty/operators-index
+      # tag: a tag for the component
+      tag: v3.1-10.gff5edb9
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    redis_redis:
+      # repository: image repository for the image
+      repository: 3rdparty/opstree/redis
+      # tag: a tag for the component
+      tag: v2.0
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    redis_exporter:
+      # repository: image repository for the image
+      repository: 3rdparty/opstree/redis-exporter
+      # tag: a tag for the component
+      tag: "1.0"
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    consul_operator:
+      # repository: image repository for the image
+      repository: 3rdparty/consul-operator
+      # tag: a tag for the component
+      tag: v2.15.0
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    jaeger_operator:
+      # repository: image repository for the image
+      repository: 3rdparty/jaegertracing/jaeger-operator
+      # tag: a tag for the component
+      tag: 1.18.1
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    jaeger_query:
+      # repository: image repository for the image
+      repository: 3rdparty/jaegertracing/jaeger-query
+      # tag: a tag for the component
+      tag: 1.18.1
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    jaeger_agent:
+      # repository: image repository for the image
+      repository: 3rdparty/jaegertracing/jaeger-agent
+      # tag: a tag for the component
+      tag: 1.18.1
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    jaeger_collector:
+      # repository: image repository for the image
+      repository: 3rdparty/jaegertracing/jaeger-collector
+      # tag: a tag for the component
+      tag: 1.18.1
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    redis_operator:
+      # repository: image repository for the image
+      repository: tdsql/redis-operator
+      # tag: a tag for the component
+      tag: 81390ca
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/middleware/redis-operator
+      # support_arm: flag for arm support
+      support_arm: false
+    kafka_kafka_240:
+      # repository: image repository for the image
+      repository: 3rdparty/strimzi/kafka
+      # tag: a tag for the component
+      tag: 5f6074515468cdfc80b0f4dccefe810a6254cc08c6fc084ac7565c6f8e757c53
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    kafka_kafka_241:
+      # repository: image repository for the image
+      repository: 3rdparty/strimzi/kafka
+      # tag: a tag for the component
+      tag: 3891d699bec7e33701f630f45762705edde0056244d1a29f65f47ce340ba923b
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    kafka_kafka_250:
+      # repository: image repository for the image
+      repository: 3rdparty/strimzi/kafka
+      # tag: a tag for the component
+      tag: 12d5ed92510941f1569faa449665e9fc6ea544e67b7ae189ec6b8df434e121f4
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    kafka_operator:
+      # repository: image repository for the image
+      repository: 3rdparty/strimzi/operator
+      # tag: a tag for the component
+      tag: 2857eec4b4c5eca0fbe342fa37497dcc9eee6fdbc06db53910c92136176ed34d
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    kafka_bridge:
+      # repository: image repository for the image
+      repository: 3rdparty/strimzi/kafka-bridge
+      # tag: a tag for the component
+      tag: 34fbe40acdd72eff9fe2d4eca273251776f14218a038de0952f12fce859186c5
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    kafka-jmxtrans:
+      # repository: image repository for the image
+      repository: 3rdparty/strimzi/jmxtrans
+      # tag: a tag for the component
+      tag: ab65157523eaaa25cf44fc273a01ac701dee00e5cd4f0c378b700e0f0f795b73
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    kong_kong:
+      # repository: image repository for the image
+      repository: 3rdparty/kong
+      # tag: a tag for the component
+      tag: "2.1"
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    kong_operator:
+      # repository: image repository for the image
+      repository: 3rdparty/kong-operator
+      # tag: a tag for the component
+      tag: v2.15.0
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    postgres_operator:
+      # repository: image repository for the image
+      repository: tdsql/postgres-operator
+      # tag: a tag for the component
+      tag: 734429c
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/middleware/postgres-operator
+      # support_arm: flag for arm support
+      support_arm: false
+    postgres_spilo:
+      # repository: image repository for the image
+      repository: 3rdparty/zalando/spilo-12
+      # tag: a tag for the component
+      tag: 1.6-p3-alauda-39fde60ca81d63b37415be229a84f7453650ddcf
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    postgres_pgbouncer:
+      # repository: image repository for the image
+      repository: 3rdparty/zalando/pgbouncer
+      # tag: a tag for the component
+      tag: master-9
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    postgres_logical_backup:
+      # repository: image repository for the image
+      repository: 3rdparty/zalando/logical-backup
+      # tag: a tag for the component
+      tag: v1.3.0
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    postgres_exporter:
+      # repository: image repository for the image
+      repository: 3rdparty/postgres_exporter
+      # tag: a tag for the component
+      tag: v0.8.0
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    percona_mysqld_exporter:
+      # repository: image repository for the image
+      repository: 3rdparty/mysqld-exporter
+      # tag: a tag for the component
+      tag: v1
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    percona_pxc_operator:
+      # repository: image repository for the image
+      repository: 3rdparty/pxc-operator
+      # tag: a tag for the component
+      tag: v1.5.0.5
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    percona_xtradb_cluster:
+      # repository: image repository for the image
+      repository: 3rdparty/percona/percona-xtradb-cluster
+      # tag: a tag for the component
+      tag: 5.7.30-31.43
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    percona_xtradb_cluster_debug:
+      # repository: image repository for the image
+      repository: 3rdparty/percona/percona-xtradb-cluster
+      # tag: a tag for the component
+      tag: 5.7.30-31.43-debug
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    percona_xtradb_cluster_operator_proxysql:
+      # repository: image repository for the image
+      repository: 3rdparty/percona/percona-xtradb-cluster-operator
+      # tag: a tag for the component
+      tag: 1.5.0-proxysql
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    percona_xtradb_cluster_operator_haproxy:
+      # repository: image repository for the image
+      repository: 3rdparty/percona/percona-xtradb-cluster-operator
+      # tag: a tag for the component
+      tag: 1.5.0-haproxy
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    percona_xtradb_cluster_operator_backup:
+      # repository: image repository for the image
+      repository: 3rdparty/percona/percona-xtradb-cluster-operator
+      # tag: a tag for the component
+      tag: 1.5.0-pxc8.0-backup
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    percona_xtradb_cluster_operator_pmm:
+      # repository: image repository for the image
+      repository: 3rdparty/percona/percona-xtradb-cluster-operator
+      # tag: a tag for the component
+      tag: 1.5.0-pmm
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    rabbitmq_cluster_operator:
+      # repository: image repository for the image
+      repository: 3rdparty/rabbitmqoperator/rabbitmq-cluster-kubernetes-operator
+      # tag: a tag for the component
+      tag: 0.8.0-build.70.15
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    rabbitmq_server:
+      # repository: image repository for the image
+      repository: 3rdparty/rabbitmq
+      # tag: a tag for the component
+      tag: 3.8.5
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    rabbitmq_exporter:
+      # repository: image repository for the image
+      repository: 3rdparty/kbudde/rabbitmq-exporter
+      # tag: a tag for the component
+      tag: v1.0.0-RC7.1
+      # code: code repository address
+      code: gitlab-ce.alauda.cn/alauda/operator-manifests
+      # support_arm: flag for arm support
+      support_arm: false
+    devops_tools_operator:
+      repository: devops/tools-operator
+      tag: v3.2-3-ge674bd0
+      code: gitlab-ce.alauda.cn/devops/devops-tool-operator
+      support_arm: false

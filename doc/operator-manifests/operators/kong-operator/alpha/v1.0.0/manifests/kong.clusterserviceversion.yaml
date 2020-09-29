@@ -1,0 +1,170 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "operator.alauda.io/v1alpha1",
+          "kind": "Kong",
+          "metadata": {
+            "name": "kong-k8s"
+          },
+          "spec": {
+            "postgresql": {
+              "name": "",
+              "userName": "",
+              "password": "",
+              "host": "",
+              "port": ""
+            }
+          }
+        }
+      ]
+    capabilities: Basic Install
+    categories: SpringCloud
+    certified: 'false'
+    containerImage: harbor.alauda.cn/3rdparty/kong-operator:v2.15.0
+    createdAt: '2020-09-05 23:30:00'
+    description: "Kong Gateway 是一个为微服务而生的轻量级开源 API 网关。具备极低延迟、高性能、强扩展性等能力"
+  name: kong-operator.v1.0.0
+  namespace: placeholder
+spec:
+  customresourcedefinitions:
+    owned:
+      - description: Kong
+        displayName: Kong
+        kind: Kong
+        name: kongs.operator.alauda.io
+        version: v1alpha1
+        resources:
+          - {king: Deployment, version: v1}
+          - {kind: Service, version: v1}
+          - {kind: ReplicaSet, version: v1}
+          - {kind: Pod, version: v1}
+          - {kind: Secret, version: v1}
+          - {kind: ConfigMap, version: v1}
+        specDescriptors: []
+        statusDescription: []
+    required: []
+  description: "### 介绍\n
+
+                Kong Gateway 是 Kong 公司推出的开源产品，是一个在客户端和(微)服务间转发 API 通信的API网关，并可以通过插件扩展其功能。其核心组件 Kong Server 是一个在 Nginx 运行的 Lua 应用程序，由 lua-nginx-module 实现。Kong 和 OpenResty 一起打包发行，其中已经包含了 lua-nginx-module。OpenResty 不是 Nginx 的分支，而是一组扩展其功能的模块。
+
+                ### 功能特性\n
+
+                通过 Service 和 Route 暴露你的服务。\n
+
+                提供服务限流和代理缓存。\n
+
+                通过密钥认证保证服务安全。\n
+
+                对流量进行负载均衡。\n
+
+                通过插件提供更丰富强大的 API 管理功能。\n
+  "
+  displayName: Kong Operator
+  icon:
+    - base64data: iVBORw0KGgoAAAANSUhEUgAAAI4AAACACAMAAADqKaFKAAAAnFBMVEUAAAAANFoAUnIANl0ANFkANFkAOWEANFkANFkAOl8ANFoANFoAOF0AQGMANFoANVoANFkANVoANFkANFkANVoANlwANFkANVoANVoANVoANFoANloAN1sANlsAQ2oANFoANFoANVoAOF0ANFkANVoANVoANFoANVoANlsAQGIANVkANVkANVkANVoANVkANVoANlsANVoANFoANFnuMUUSAAAAM3RSTlMA0AUt+lIYkbMT9u8hDOJ23KOM5loz84Bk68A5J0kJ17qHHMStbJVOQg/MPp57qXBUmslOI9JhAAAEs0lEQVR42szZ226qUBSF4eESFVQqFs/nc7Vat+14/3fbCSVGUVirCWvid+vNTID8mVPYok41hZdR/SHXVbyIcUiS4REvYeAw4mxRPFXjVXuGgnkL3ig1UahywDuNKQpU6TGpj8L0+YR7QCF8l08FZRSgOWeKegfipg2mE09Gy2E66WSoNjXCMeT8o4ZoMg5DaogmY0kN0WSs6tQQTcaJGqLJKFNDNhkuNUSTsaeGbDI+qSGajA7/bAd7xpVbfeqdIOedOm1IcpnNVZDkl5gp8CFqFb7SwwK6moR1YE2/drXb7eJCXjQhbcKSCu/Uu4h8MdNawQoV8F5YRaRdSNdbTPqc/c45YhZnDAu8Bh9s4p8CZmnBgm8+sURk0pAep+xkfcd7R3icRfaLMZAdZ8oUw2ZcU8lx1JxpSj4iruA4W6ZzrzWVGscbMsN7dk3re+SsxkyDrJq+dZGzicNMzvEatQejKmJyu9WwmVbTb4WY5G41PyByErirlKi3UE9qOjwif4O/rFNeYPmk4oc0sk3WdOPDgiXNONP7mn7BhmadhhqTm4fb+4AVNRoLvLimFg8pq5DGRgoRd+Ehydoipb8PzBTs6dBcC/aoGSJ9mvuALYfFBr/ONNaz9g6Xrhvb7IfG3qqwoRveLArVNyYIL8HTXryHaz4vmRvKwEns4RWasJSH5cMejhbNXZAndeaNM0zuFMlTS3689dODiFrTWLiy+B/wRXunSDm15GD8v3YzW0oYCKJoJwyLYqIgpFgECQoquJT0//+bD1CWVePkzk0n55WXLDOd26eHefDZdwqN5rkh4XZdUdpWGk/Z4tT1tA783KoyTfegtHnOqU0Hlw1AafM0IOoFLfQOWkGX315JZmnEc62imHoaEDIwdL5DmBw8DQgZ02VmfGbvopPDTOOZkevlXuMZ8b2OOwpBYKOAYJ5umO3FDg/5YP7mi0ugWgBg9oOC+c1cPYBqwTwUypJf2suja3xynRGP3LS94hTYp9bh3c+vWLXQH2++7x2oEqoFsXRak5Vv2bFqYeofv7141cLWP/5el4xqoesfc6/Nqpau2viW5lQLziyYL4NqgfWP507OrA921TJSMysRXrWcUm5yxzsTu2pZOrUyP+90u2rBT5fv6D4Y1ULUP7pBsKuWUs0UW/nFqFpe1M7OtAAOa1D/SJ7Eo6ZqWSdqxnnZhX3qJV5zhjPItVXLTu0koeDyTqsWR9xAJ0Aw1vGqpdVT4bxq0Vg2wsOrFqK34+FVS+tSb0epFi7p9ZMQi6sGxspDoarmjFtbtGpZSFzsPAuQqSMdNqtaSiESwFVOj4hI1dIVQuY912gLONWyFSLNTvA7tZ2vyUUU8pjJhU19ZzyO3DCKKB4CB1O4D8kgrkemIvltnS43XrUcRSiJlyaERKK3l8vg5RxS+cuUWGl0L5eICHlkv2+YME4iFAi5FLLcMMAvcXljhysvcerABxfSjogAXwxUL/GnDKhaChBO571/feYwKmbyMnQBLue1dsH/DIdDkAj4CpsqphcUkGCwysepG8u8cw9ugY/qK4sQDSexXCouxx0NWTxPJcAWlU9eQPcNDeIEKW/48vmo4LYSYlT5ORf5AWrXrLl1P4wQAAAAAElFTkSuQmCC
+      mediatype: image/png
+  install:
+    spec:
+      deployments:
+      - name: kong-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: kong-operator
+          template:
+            metadata:
+              labels:
+                name: kong-operator
+            spec:
+              containers:
+                - env:
+                  - name: CHART_NAME
+                    value: "kong"
+                  - name: CHART_VERSION
+                    value: "v2.15.0"
+                  image: harbor.alauda.cn/3rdparty/kong-operator:v2.15.0
+                  imagePullPolicy: Always
+                  name: kong-operator
+                  resource:
+                    limits:
+                      cpu: 100m
+                      memory: 128Mi
+                    requests:
+                      cpu: 100m
+                      memory: 128Mi
+                  terminationMessagePath: /dev/termination-log
+                  terminationMessagePolicy: File
+              serviceAccountName: kong-operator
+      clusterPermissions:
+        - rules:
+            - apiGroups:
+                - rbac.authorization.k8s.io
+              resources:
+                - clusterroles
+                - roles
+                - clusterrolebindings
+                - rolebindings
+              verbs:
+                - '*'
+            - apiGroups:
+                - apiextensions.k8s.io
+              resources:
+                - customresourcedefinitions
+              verbs:
+                - '*'
+            - apiGroups:
+                - ''
+              resources:
+                - configmaps
+                - secrets
+              verbs:
+                - '*'
+            - apiGroups:
+                - operator.alauda.io
+              resources:
+                - '*'
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+          serviceAccountName: kong-operator
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - kong
+  - ingress
+  - proxy
+  - microservices
+  links:
+  - name: Kong Operator
+    url: https://kong-operator.domain
+  labels:
+    name: kong-operator
+  maintainers:
+  - email: yingma@alauda.io
+    name: MaYing
+  maturity: alpha
+  minKubeVersion: 1.11.0
+  provider:
+    name: System
+  selector:
+    matchLabels: {}
+  skips: []
+  version: "1.0"

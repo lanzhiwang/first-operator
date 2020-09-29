@@ -1,0 +1,51 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  labels: {app: strimzi, strimzi.io/crd-install: 'true'}
+  name: kafkarebalances.kafka.strimzi.io
+spec:
+  group: kafka.strimzi.io
+  names:
+    categories: [strimzi]
+    kind: KafkaRebalance
+    listKind: KafkaRebalanceList
+    plural: kafkarebalances
+    shortNames: [kr]
+    singular: kafkarebalance
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      properties:
+        spec:
+          description: Kafka rebalance的规范。
+          properties:
+            goals:
+              description: 目标列表（按优先级从高到低排序），用于生成和执行重新平衡建议。 受支持的目标位于https://github.com/linkedin/cruise-control#goals。 如果提供了空目标列表，则使用default.goals Cruise Control配置参数中声明的目标。
+              items: {type: string}
+              type: array
+            skipHardGoalCheck: {description: 是否允许在重新平衡提案生成过程中跳过在Kafka CR中指定的硬目标。 当某些艰巨的目标阻止找到平衡解决方案时，这将很有用。 默认为false。, type: boolean}
+          type: object
+        status:
+          description: Kafka rebalance的状态。
+          properties:
+            conditions:
+              description: 状态条件列表。
+              items:
+                properties:
+                  lastTransitionTime: {description: '上一次类型的条件从一种状态更改为另一种状态。 所需格式为“ yyyy-MM-ddTHH：mm：ssZ”，以UTC时区为准。', type: string}
+                  message: {description: 可读的消息，指示有关条件的最后转换的详细信息。, type: string}
+                  reason: {description: 条件最后一次转换的原因（在CamelCase中为单个单词）。, type: string}
+                  status: {description: '条件的状态,True,False或Unknown.', type: string}
+                  type: {description: '条件的唯一标识符，用于区分资源中的其他条件。', type: string}
+                type: object
+              type: array
+            observedGeneration: {description: 最后由operator核对生成的CRD。, type: integer}
+            optimizationResult: {description: 描述优化结果的JSON对象。, type: object}
+            sessionId: {description: 与该Kafka Rebalance资源有关的对Cruise Control的请求的会话标识符。 Kafka Rebalance operator使用它来跟踪正在进行的重新平衡操作的状态。, type: string}
+          type: object
+  version: v1alpha1
+  versions:
+  - {name: v1alpha1, served: true, storage: true}
+

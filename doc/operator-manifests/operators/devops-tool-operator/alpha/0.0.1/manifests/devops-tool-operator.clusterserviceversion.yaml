@@ -1,0 +1,354 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "operator.devops.alauda.io/v1alpha1",
+          "kind": "Gitlab",
+          "metadata": {
+            "name": "gitlab-sample"
+          },
+          "spec": {
+            "account": {
+              "password": "Gitlab12345"
+            },
+            "integratedIntoPlatform": true,
+            "persistence": {
+              "type": "LocalPath"
+            },
+            "service": {
+              "nodePort": {
+                "httpPort": 30000,
+                "httpsPort": 30001,
+                "sshPort": 30002
+              },
+              "type": "NodePort"
+            }
+          }
+        },
+        {
+          "apiVersion": "operator.devops.alauda.io/v1alpha1",
+          "kind": "Harbor",
+          "metadata": {
+            "name": "harbor-sample"
+          },
+          "spec": {
+            "account": {
+              "password": "Harbor12345"
+            },
+            "integratedIntoPlatform": true,
+            "persistence": {
+              "type": "LocalPath"
+            },
+            "service": {
+              "nodePort": {
+                "httpPort": 30000,
+                "httpsPort": 30001,
+                "notaryPort": 30002
+              },
+              "type": "NodePort"
+            }
+          }
+        },
+        {
+          "apiVersion": "operator.devops.alauda.io/v1alpha1",
+          "kind": "Jenkins",
+          "metadata": {
+            "name": "jenkins-sample"
+          },
+          "spec": {
+            "account": {
+              "password": "Jenkins12345"
+            },
+            "integratedIntoPlatform": true,
+            "persistence": {
+              "type": "LocalPath"
+            },
+            "service": {
+              "nodePort": {
+                "port": 30000
+              },
+              "type": "NodePort"
+            }
+          }
+        },
+        {
+          "apiVersion": "operator.devops.alauda.io/v1alpha1",
+          "kind": "Sonarqube",
+          "metadata": {
+            "name": "sonarqube-sample"
+          },
+          "spec": {
+            "integratedIntoPlatform": true,
+            "persistence": {
+              "type": "LocalPath"
+            },
+            "plugins": {
+              "useDefaultPluginsPackage": true
+            },
+            "service": {
+              "nodePort": {
+                "port": 30000
+              },
+              "type": "NodePort"
+            }
+          }
+        }
+      ]
+    capabilities: Basic Install
+    description: |
+      DevOps Tools Operator 是用于部署可集成在DevOps中使用的外部工具链，如：Jenkins、Gitlab、Harbor、SonarQube
+    operators.operatorframework.io/builder: operator-sdk-v1.0.0
+    operators.operatorframework.io/project_layout: go
+  name: devops-tool-operator.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: |
+        Gitlab 是一个开源的分布式代码管理工具，它可以管理项目源代码并控制代码的版本。
+      displayName: gitlab
+      kind: Gitlab
+      name: gitlabs.operator.devops.alauda.io
+      version: v1alpha1
+    - description: |
+        Harbor 是一个开源的 Docker 镜像管理工具，它可以提升 Registry 构建和传输镜像的效率。
+      displayName: harbor
+      kind: Harbor
+      name: harbors.operator.devops.alauda.io
+      version: v1alpha1
+    - description: |
+        Jenkins 是一个开源的持续集成工具，它可以使开发人员更可靠地构建、测试和部署软件。
+      displayName: jenkins
+      kind: Jenkins
+      name: jenkins.operator.devops.alauda.io
+      version: v1alpha1
+    - description: |
+        SonarQube 是一个开源的代码质量管理工具，它可以快速定位代码中潜在或明显的错误。
+      displayName: sonarqube
+      kind: Sonarqube
+      name: sonarqubes.operator.devops.alauda.io
+      version: v1alpha1
+  description: |
+    DevOps Tools Operator可以便捷的部署DevOps工具链上的工具，且可以支持升级
+    部署后，创建对应工具的实例即可将工具部署成功。
+    目前支持的工具包含以下四个：
+    Jenkins、sonarqube、gitlab、harbor
+  displayName: DevOps Tools Operator
+  icon:
+  - base64data: |
+      PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgdmlld0JveD0iMCAwIDYwIDYwIj4KICA8ZyBmaWxsPSJub25lIj4KICAgIDxyZWN0IHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgZmlsbD0iIzAwMCIgb3BhY2l0eT0iMCIvPgogICAgPHBhdGggZmlsbD0iIzAwNkVGRiIgZD0iTTMwLjQ3NTA4NDQsNTkuMjMyNzgyOCBDMjkuNTExNzgzOSw1OS4yMzI3ODI4IDI4LjU2NjE1NzUsNTguOTc0MTIxOSAyNy43Mzc1ODQ0LDU4LjQ4Mjc4MjMgTDYuODUwMDg0NDEsNDYuNDQ1MjgyMyBDNS4xMDYyMTM0OSw0NS40OTI2MDk4IDQuMDE1NDI3Nyw0My42Njk4NDk0IDQuMDAwMDQxOTgsNDEuNjgyNzgyMyBMNC4wMDAwNDE5OCwxNy41NzAyODIzIEMzLjk5MjMwNTkzLDE1LjU5NjgzMjcgNS4wNTQzNzk3NywxMy43NzQwODQ0IDYuNzc1MDg0NDEsMTIuODA3NzgyMyBMMjcuNzAwMDg0NCwwLjczMjc4MjM0NSBDMjkuNDA3NzA1MSwtMC4yNDQyNjA3ODIgMzEuNTA0OTYzOCwtMC4yNDQyNjA3ODIgMzMuMjEyNTg0NCwwLjczMjc4MjM0NSBMNTQuMTAwMDg0NCwxMi44MDc3ODIzIEM1NS44MDA1NzMzLDEzLjc4OTU0MDggNTYuODQ1MTExNCwxNS42MDY3NTA5IDU2LjgzNzYyNDgsMTcuNTcwMjgyMyBMNTYuODM3NjI0OCw0MS42ODI3ODIzIEM1Ni44Mzc2MjQ4LDQzLjY0NDI1NjIgNTUuNzk0OTAxMiw0NS40NTc4NzM3IDU0LjEwMDA4NDQsNDYuNDQ1MjgyMyBMMzMuMjEyNTg0NCw1OC40ODI3ODIzIEMzMi4zNzk4NTMyLDU4Ljk2NDI0NzggMzEuNDM2OTI5Niw1OS4yMjI1ODMgMzAuNDc1MDg0NCw1OS4yMzI3ODI4IFoiLz4KICAgIDxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik0xNy44MjM4NjksMzguMzI5ODMyOCBDMTcuNzczNDA3NCwzOC43Nzk4MjMxIDE3Ljg5MzExNDIsMzkuMjM1MzIyIDE4LjE1NDE4ODQsMzkuNTcyMTU5NyBMMTguMTU0MTg4NCwzOS41NzIxNTk3IEwxOS45MjAwNjk5LDQxLjg1NDk3MzEgQzIwLjE2NDk2ODgsNDIuMTcyMDQ1MiAyMC41MTE1NTQ1LDQyLjM1MzA4OTUgMjAuODc0ODYyMSw0Mi4zNTMwODk1IEMyMC45Njg0NTI5LDQyLjM1MDIwOTUgMjAuOTY4NDUyOSw0Mi4zNTAyMDk1IDIxLjA1MDQzODEsNDIuMzM4ODg4OSBDMjEuODI5MDEyMyw0Mi4yMDk3Mzg2IDIyLjM3MTU2NDcsNDIuMDI3NTMzOCAyMi43NTEzMjA0LDQxLjU5MjY5MjMgQzIyLjg5MDE2OTksNDEuNDMzNDg1MyAyMi45NDc2NzY2LDQxLjMzODkyOTUgMjMuMjcwNjY4LDQwLjc3NTg2NTQgQzIzLjkxNDg3NzEsMzkuNjUxMjc2NSAyNC4zMTkxMTY3LDM5LjAwOTQ4NzIgMjQuNzE5NzYzNCwzOC41NTA5MDI5IEwyNC43MTk3NjM0LDM4LjU1MDkwMjkgTDI0LjkxMiwzOC4zMjkgTDM0LjM4LDM4LjMyOSBMMzYuNTc1MTM0Nyw0MS41NDc3NDQ1IEMzNy4wMTY1ODI1LDQyLjE5NTI5MDUgMzcuNjMyOTMxMSw0Mi42MTgzMjYxIDM4LjMxODc5NzYsNDIuNzQ4OTE0NyBMMzguNTA3NDk2NSw0Mi43NzcyMjggQzM4LjU5NDk3ODUsNDIuNzg2ODU0MiAzOC42ODI3ODExLDQyLjc5MTQ5MzUgMzguNzcxMzA4Niw0Mi43OTE0OTM1IEMzOS40NDEyMzY2LDQyLjc5MTQ5MzUgNDAuMDgzMjkwNyw0Mi41MTAwMzg0IDQwLjU5Njg2MjEsNDEuOTkxNDkwOCBMNDAuNTk2ODYyMSw0MS45OTE0OTA4IEw0MS4xNzI4NTk5LDQxLjQwOTkzMjMgQzQxLjc5NDYxMTMsNDAuNzgxNjg1NCA0Mi4xMzcxNjI0LDM5Ljg5ODMzNzggNDIuMTgyMzYxNiwzOC45OTI0MDA1IEw0NSw0MS40Mzk4NDM4IEw0MS40MTgyNjMyLDQ1IEwxNSw0NSBMMTguNzc0MzA2Miw0MS40Mzk4NDM4IEwxNSwzOC4zMjk5OTQgWiBNMjUuMzc4NDg0OSwxNi4wMTg1ODU4IEMyNS40Njg1MzUyLDE1LjkyMzk4NDggMjcuNzYwMDE5NSwxMy42MDQxOTI1IDMyLjY4NDYzMTcsMTYuMjk3NjU0MSBDMzIuNzk1ODUwMSwxNi4zNTgyOTc3IDMyLjg3MzIxMTIsMTYuNDgyMTQzNSAzMi44ODk3MTgyLDE2LjYyNTk3MzIgQzMyLjkwNjQzOTEsMTYuNzY5NTY4NyAzMi44NjAyMzY3LDE2LjkxMzM1OSAzMi43NjcxNzM1LDE3LjAwNzM1NDYgTDMyLjc2NzE3MzUsMTcuMDA3MzU0NiBMMzEuNDYxMzcsMTguMzI2NDk3MiBDMzEuNDAyMjYyNSwxOC4zODYzMTQyIDMxLjMyODM0NjgsMTguNDIxNzAzNSAzMS4yNTA3ODQsMTguNDI3MzIxNSBDMzEuMDY4OTUwOSwxOC40NDAwNjU5IDMwLjg1ODM2NSwxOC40MDk4MTI3IDMwLjYxNDUwNjEsMTguMzczNjMzOSBDMjkuODE5ODk5NiwxOC4yNTY3ODk3IDI4LjczMDE4MTQsMTguMDk2MzUyMiAyNy41OTg3MDI2LDE5LjIzOTYzMjkgQzI3LjU0ODkzMTQsMTkuMjg4NTg2IDI3LjQzNjM4MTEsMTkuNDMxNTE0NyAyNy40MjU2MzM0LDE5LjU4ODQwODcgQzI3LjQxODEyNSwxOS42OTc4Mzg1IDI3LjQ2MDM4NzgsMTkuODEzNDkxNiAyNy41NTQ2ODE5LDE5Ljk0MTkxOSBDMjcuOTI5MzQ3MSwyMC40NTMyMTY3IDM0LjI0MzU2MDMsMjkuMTUyODY5NyAzNi4zMjU5NjU0LDMyLjE4NzA5NzIgQzM2LjkxNjIxMzcsMzIuMTU4NjMwNSAzNy40OTgyMjU0LDMyLjQ1OTA0ODggMzcuODc2MzgxMSwzMy4wMTM2NDE5IEwzNy44NzYzODExLDMzLjAxMzY0MTkgTDQwLjgxODM4MTcsMzcuMzI4NDUwOSBDNDEuNDgxNDI4NiwzOC4zMDA5MDIxIDQxLjM2Nzg3MzksMzkuNzUyMzQzIDQwLjU2NTA4MDksNDAuNTYzNTIyOSBMNDAuNTY1MDgwOSw0MC41NjM1MjI5IEwzOS45ODkwNzA5LDQxLjE0NTA5MzkgQzM5LjY0MzkzNjksNDEuNDkzNTcxOSAzOS4yMTY5ODk0LDQxLjY3OTgyNTkgMzguNzcxMzA4Niw0MS42Nzk4MjU5IEMzOC43MTI1MjIzLDQxLjY3OTgyNTkgMzguNjUzNDg0OSw0MS42NzY4NDgyIDM4LjU5NDIyMTUsNDEuNjcwMzI3MSBDMzguMDg1MjU5NSw0MS42MTQyNTczIDM3LjYyNzA0OCw0MS4zMjI0NDQ2IDM3LjMwNDE2MjksNDAuODQ4ODE0NiBMMzcuMzA0MTYyOSw0MC44NDg4MTQ2IEwzNC4zNjIxMzczLDM2LjUzMzk3NTggQzM0LjA0NTAwMjgsMzYuMDY5MjQ5MSAzMy44OTQ5MzU4LDM1LjQ3MzE0NzEgMzMuOTM4NzA1NCwzNC44NzIyODA4IEwzMy45Mzg3MDU0LDM0Ljg3MjI4MDggTDI1LjQ4MjMyMTQsMjMuMDc0NjQ4MSBDMjUuMjk2NDcwNCwyMi45ODcxNjM5IDI0LjcyNTIzMTYsMjIuNzc1MzkxMiAyNC4yOTA4MDA4LDIzLjIxNDAzMzQgQzIzLjk5MzkwNjMsMjMuNTEzODU2MSAyMy45ODYxNzE5LDIzLjg0OTI5MTkgMjMuOTc3MTU2OCwyNC4yMzc3OSBDMjMuOTcwNDAxOCwyNC41MzQzNjcgMjMuOTYzMTQ0NSwyNC44NDEwMDg2IDIzLjc5NzgzNDgsMjUuMDk0MjkwMiBDMjMuNzc4ODI1MywyNS4xMjc4MTg5IDIzLjc1MDMyMzcsMjUuMTc0OTU1NiAyMy43MDQ3OTYzLDI1LjIyMDkzMSBMMjMuNzA0Nzk2MywyNS4yMjA5MzEgTDIyLjA3MzU5NjUsMjYuODY4MzkyNyBDMjEuOTU0NzkzNSwyNi45ODgxODQ4IDIxLjgwNzIzNzcsMjcuMDQ0MjU0NSAyMS42NDk0MTEzLDI3LjAyNzYzOTEgQzIxLjQ5NDg0OTMsMjcuMDEwNzU1NiAyMS4zNTU3ODEzLDI2LjkyMjM3ODEgMjEuMjU3NzQ1NSwyNi43Nzg4MjQgTDIxLjI1Nzc0NTUsMjYuNzc4ODI0IEwxOC44ODI0NjM3LDIzLjI5NTI5NDMgQzE4LjY4NTYzOSwyMy4wMDYxMzE3IDE4LjcxOTEzNzgsMjIuNTc0OTAzOSAxOC45NTc3NDgzLDIyLjMzMzgwMSBMMTguOTU3NzQ4MywyMi4zMzM4MDEgTDIwLjU4ODk0ODEsMjAuNjg2MzM5MyBMMjAuNTg4OTQ4MSwyMC42ODYzMzkzIEwyMC42MDQyMTYsMjAuNjcyMTA2IEMyMC42MDY0NzYsMjAuNjY5NDI2MSAyMC42MDg3MTA5LDIwLjY2Njc3NiAyMC42MTEyMjIxLDIwLjY2NDM5MzggQzIwLjc4OTAzNzQsMjAuNDc2NjUxIDIxLjAwNDM2OTQsMjAuNTAxNTc0MiAyMS4xOTM0NTk4LDIwLjUyMjYyNjQgQzIxLjQzMzU1MTksMjAuNTQ5NjA0MiAyMS42MDIzNzcyLDIwLjU1NjQyMzEgMjEuNzUzMTk3NSwyMC40MDQyOTM0IEMyMS45NjA1NDQxLDIwLjE5NDkzMjYgMjIuMDg1MzQ4OCwxOS42NzI5NDUxIDIyLjExMzU5OTMsMTkuNDUzMTkyMiBDMjIuMTI2MzQxMywxOS4zNTE4ODMxIDIyLjE2OTYwODgsMTkuMjU5NDggMjIuMjM1MzkwNiwxOS4xOTMwOTE3IEwyMi4yMzUzOTA2LDE5LjE5MzA5MTcgWiBNMjcuMzI4NTc3LDI4LjUyMzIzOSBDMjcuNDcwMTU2MywyOC4zNjA0MTk0IDI3LjY5NjQ4NzIsMjguMzYzOTkyNyAyNy44MzQ1NTA4LDI4LjUzMjQ0MDEgTDI3LjgzNDU1MDgsMjguNTMyNDQwMSBMMjkuNjU2Mjk3NCwzMC43NTE2NzYxIEMyOS43MjI4MjI0LDMwLjgzMjY1MjYgMjkuNzU5MzcxNywzMC45NDE3NDA3IDI5Ljc1Nzg5NDUsMzEuMDU0Nzc0MyBDMjkuNzU2NDk5LDMxLjE2Nzc5OTMgMjkuNzE3MTYwMSwzMS4yNzU1MTAzIDI5LjY0ODU2MzEsMzEuMzU0MDAxNSBMMjkuNjQ4NTYzMSwzMS4zNTQwMDE1IEwyNC4wNjg2NjM1LDM3Ljc1MTA3MzIgQzIzLjQ5MjkyOTcsMzguNDEwMDYzOSAyMi44Njg0MDQsMzkuNDk5NjU3IDIyLjQ5NTQ5NjcsNDAuMTUwNjM3NyBDMjIuMjcwNDIxMyw0MC41NDMwMDY3IDIyLjE3NjEyNzIsNDAuNzA1ODI2MyAyMi4xMDAwODkzLDQwLjc5MzAxMjggQzIxLjg4OTUwMzMsNDEuMDM0MTQ1NSAyMS4zNDQ3ODI0LDQxLjE2NzU3NTQgMjAuOTI0NTg5OCw0MS4yMzcyODI5IEMyMC45MDgwOTE1LDQxLjIzOTkzMyAyMC44OTE1NjgxLDQxLjI0MTQyMTggMjAuODc1MDY5OCw0MS4yNDE0MjE4IEMyMC43NzQ2MTg3LDQxLjI0MTQyMTggMjAuNjc4NzkxLDQxLjE5MTM2NDggMjAuNjEwOTQ1OSw0MS4xMDM1MjU0IEwyMC42MTA5NDU5LDQxLjEwMzUyNTQgTDE4Ljg0NDQ0NDgsMzguODE5OTExOSBDMTguNzY1OTE1OCwzOC43MTg1OTM4IDE4LjczMzY2MjcsMzguNTc4NDMyNiAxOC43NTc5MTAyLDM4LjQ0Mzg2MDUgQzE4Ljc4NDE3NjksMzguMjk4NTQ5NyAxOC45MzE3MzI3LDM3LjU1MzU2MzYgMTkuMjY5NjM0NSwzNy4xNjYyMjY5IEMxOS4zODk5NDQyLDM3LjAyODYyODIgMTkuNjM1MDU4NiwzNi44MjQ4OTUyIDE5Ljk3NDQ0MiwzNi41NDI1NTE1IEMyMC41MjM2ODMsMzYuMDg1ODA1IDIxLjI3NjAwMTcsMzUuNDYwMzQzIDIxLjgwMzk3MzIsMzQuODU1OTMzMyBDMjIuMTY5ODc0NCwzNC40MzcxODIgMjQuNjI3NjczLDMxLjYxOTcyOTggMjcuMzI4NTc3LDI4LjUyMzIzOSBaIE0zNy42NDUyNTM5LDE1LjAwMzcwMjcgQzM3Ljc0NjgwNTIsMTUuMDA1MTYxNyAzNy44NTA4NDI2LDE1LjA0OTk0NjEgMzcuOTIxNjMyMywxNS4xNDEzMDEzIEwzNy45MjE2MzIzLDE1LjE0MTMwMTMgTDM4LjMxMjg3MTEsMTUuNjQ3MjY4OSBDMzguNDQzOTI4NiwxNS44MTY5MDc0IDM4LjQzNzQyNDcsMTYuMDc5MDkyMiAzOC4yOTg2MDc3LDE2LjIzOTUyOTcgTDM4LjI5ODYwNzcsMTYuMjM5NTI5NyBMMzYuNTY4ODcsMTguMjM0Mjc4NCBMMzYuOTUwMjkwMiwyMC4yMDczNzkzIEwzOC41Mjc0NzQ5LDIwLjc4MzMyMjQgTDQwLjI1MTQ2MjEsMTguNzk5ODU5MiBDNDAuMzIwOTk2MSwxOC43MTk3ODkzIDQwLjQxNTc2NzMsMTguNjgwMDM3MyA0MC41MTE1NjgxLDE4LjY4MDAzNzMgQzQwLjYwODM3OTUsMTguNjgzMzk1OCA0MC42OTk5MzM5LDE4LjczMzAyMTkgNDAuNzY1NDIxMywxOC44MTc2MzU5IEw0MC43NjU0MjEzLDE4LjgxNzYzNTkgTDQxLjE1NTgzMTUsMTkuMzIyNDEyNCBDNDEuMjIzNDQ1NywxOS40MTAwOTEyIDQxLjI1NzA4NDksMTkuNTI3Mjg0OSA0MS4yNDg2MTg5LDE5LjY0NTY2OTUgQzQxLjE1ODgxOTgsMjAuOTAxMDU5OSA0MC42OTQ4ODI4LDIyLjA5MjY2ODQgMzkuOTc2MDYzMSwyMi45MTU2Njk3IEMzOC45NjgxMzM0LDI0LjA2OTY0MDMgMzcuNTEzNzY5NSwyNC40MjM3NDYyIDM2LjIxMTcwNzYsMjMuODUyODM1MyBDMzUuOTc2MTEwNSwyNC4xMjA5NDU4IDM1Ljc0OTI1MjIsMjQuMzc0MTk3NiAzNS41MDIxNTQsMjQuNjUwMzE3OSBDMzUuMTIyNDY2NSwyNS4wNzQ3MjY4IDM0LjY5NDUzOTYsMjUuNTUzMDkxMyAzNC4xMTAyOTMsMjYuMjIzMDM5OCBDMzQuMDQzMzQxLDI2LjI5OTYyODMgMzMuOTUzOTYzMywyNi4zNDI1NjQgMzMuODYwOTM0NywyNi4zNDI1NjQgTDMzLjg2MDkzNDcsMjYuMzQyNTY0IEMzMy43NTgxNTYyLDI2LjM0MDE5MDMgMzMuNjY3MzMxMiwyNi4yOTI3NTU4IDMzLjYwMTU1NjksMjYuMjEwNTkzMSBMMzMuNjAxNTU2OSwyNi4yMTA1OTMxIEwzMS43OTk1MjI5LDIzLjk2OTk3NzMgQzMxLjY2MzQ0MzEsMjMuODAwOTM0NCAzMS42Njc5NjMyLDIzLjUzMzQxOTUgMzEuODA5NTE3MywyMy4zNzA4OTc2IEMzMi4zNjE3NDY3LDIyLjczNzk5MTUgMzIuODA2NDQ4MSwyMi4yMzk3NjU5IDMzLjIwMzA4NTksMjEuNzk1NDk1OCBDMzMuNDU4Njk3LDIxLjUwOTAxMzEgMzMuNjk0Mjk0MSwyMS4yNDUzMzk0IDMzLjkyNTY0NzMsMjAuOTgyMjkxMSBDMzMuNDg2MjE5MywxOS4zMzk4OTE0IDMzLjg1MTM2NzIsMTcuNTU2NTg3OSAzNC44ODc1NzI1LDE2LjM3MDAxMTcgQzM1LjYwOTg4MjgsMTUuNTQzMTY5MiAzNi42MTUwNTAyLDE1LjA0NTIxMTUgMzcuNjQ1MjUzOSwxNS4wMDM3MDI3IFoiLz4KICA8L2c+Cjwvc3ZnPgo=
+    mediatype: image/svg+xml
+  install:
+    spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps/status
+          verbs:
+          - get
+          - update
+          - patch
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - events/status
+          verbs:
+          - get
+          - update
+          - patch
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+          - patch
+        - apiGroups:
+          - operator.alauda.io
+          resources:
+          - '*'
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - operator.devops.alauda.io
+          resources:
+          - '*'
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        serviceAccountName: default
+      deployments:
+      - name: devops-tool-operator-controller-manager
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              control-plane: devops-operator-controller-manager
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                control-plane: devops-operator-controller-manager
+            spec:
+              containers:
+              - args:
+                - --enable-leader-election
+                command:
+                - /manager
+                env:
+                - name: GITLAB_CHART_VERSION
+                  value: v2.15.0-alpha.0
+                - name: JENKINS_CHART_VERSION
+                  value: v2.15.0-alpha.13
+                - name: SONARQUBE_CHART_VERSION
+                  value: v2.15.0-alpha.2
+                - name: HARBOR_CHART_VERSION
+                  value: v2.15.0-alpha.4
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                image: harbor-b.alauda.cn/devops/tools-operator:v3.2-3-ge674bd0
+                name: manager
+                resources:
+                  limits:
+                    cpu: 100m
+                    memory: 30Mi
+                  requests:
+                    cpu: 100m
+                    memory: 20Mi
+              terminationGracePeriodSeconds: 10
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps/status
+          verbs:
+          - get
+          - update
+          - patch
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - events/status
+          verbs:
+          - get
+          - update
+          - patch
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+          - patch
+        - apiGroups:
+          - operator.alauda.io
+          resources:
+          - '*'
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - operator.devops.alauda.io
+          resources:
+          - '*'
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        serviceAccountName: default
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - jenkins
+  - sonarqube
+  - harbor
+  - gitlab
+  maturity: alpha
+  provider:
+    name: System
+  version: 0.0.1

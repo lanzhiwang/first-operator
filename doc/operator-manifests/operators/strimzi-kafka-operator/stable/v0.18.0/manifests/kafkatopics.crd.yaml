@@ -1,0 +1,55 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  labels: {app: strimzi, strimzi.io/crd-install: 'true'}
+  name: kafkatopics.kafka.strimzi.io
+spec:
+  additionalPrinterColumns:
+  - {JSONPath: .spec.partitions, description: topic所需的分区属, name: Partitions, type: integer}
+  - {JSONPath: .spec.replicas, description: 每个分区的所需副本数, name: Replication factor, type: integer}
+  group: kafka.strimzi.io
+  names:
+    categories: [strimzi]
+    kind: KafkaTopic
+    listKind: KafkaTopicList
+    plural: kafkatopics
+    shortNames: [kt]
+    singular: kafkatopic
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      properties:
+        spec:
+          description: topic的规范
+          properties:
+            config: {description: topic的配置, type: object}
+            partitions: {description: 'topic应该具有的分区数。 创建topic后不能减少此值，但可以增加它，但是重要的是要了解所产生的后果，尤其是对于具有语义分区的topic。', minimum: 1,
+              type: integer}
+            replicas: {description: topic应具有的副本数。,
+              maximum: 32767, minimum: 1, type: integer}
+            topicName: {description: topic的名称。 如果不存在，则默认为topic的metadata.name。 除非topic名称不是有效的Kubernetes资源名称，否则建议不要设置此项。, type: string}
+          required: [partitions, replicas]
+          type: object
+        status:
+          description: topic的状态。
+          properties:
+            conditions:
+              description: 状态条件列表。
+              items:
+                properties:
+                  lastTransitionTime: {description: '上次类型的条件变更的时间，类型的条件已更改。', type: string}
+                  message: {description: 可读的消息，指示有关条件的最后转换的详细信息。, type: string}
+                  reason: {description: 条件最后一次转换的原因（在CamelCase中为单个单词）。, type: string}
+                  status: {description: '条件的状态，是，否或未知。', type: string}
+                  type: {description: '条件的唯一标识符，用于区分资源中的其他条件。', type: string}
+                type: object
+              type: array
+            observedGeneration: {description: 最后由operator核对生成的CRD。, type: integer}
+          type: object
+  version: v1beta1
+  versions:
+  - {name: v1beta1, served: true, storage: true}
+  - {name: v1alpha1, served: true, storage: false}
+

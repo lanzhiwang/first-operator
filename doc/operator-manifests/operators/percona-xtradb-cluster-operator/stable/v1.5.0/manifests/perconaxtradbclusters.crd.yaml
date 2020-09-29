@@ -1,0 +1,2112 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata: {name: perconaxtradbclusters.pxc.percona.com}
+spec:
+  additionalPrinterColumns:
+  - {JSONPath: .status.host, name: Endpoint, type: string}
+  - {JSONPath: .status.state, name: Status, type: string}
+  - {JSONPath: .status.pxc.ready, description: Ready pxc nodes, name: PXC, type: string}
+  - {JSONPath: .status.proxysql.ready, description: Ready pxc nodes, name: proxysql,
+    type: string}
+  - {JSONPath: .metadata.creationTimestamp, name: Age, type: date}
+  group: pxc.percona.com
+  names:
+    kind: PerconaXtraDBCluster
+    listKind: PerconaXtraDBClusterList
+    plural: perconaxtradbclusters
+    shortNames: [pxc, pxcs]
+    singular: perconaxtradbcluster
+  scope: Namespaced
+  subresources:
+    status: {}
+  version: v1-5-0
+  validation:
+    openAPIV3Schema:
+      description: PerconaXtraDB群集是perconaxtradbclusters API的架构
+      properties:
+        apiVersion:
+          description: APIVersion定义了此对象表示形式的版本控制架构。 服务器应将已识别的模式转换为最新的内部值，并可能拒绝无法识别的值。 更多信息：https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+          type: string
+        kind:
+          description: Kind是一个字符串值，表示此对象表示的REST资源。 服务器可以从客户端向其提交请求的端点推断出这一点， 无法更新使用驼峰命名。 更多信息：https：//git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: PerconaXtraDBClusterSpec定义PerconaXtraDBCluster的所需状态
+          properties:
+            allowUnsafeConfigurations:
+              type: boolean
+            crVersion:
+              type: string
+            haproxy:
+              properties:
+                affinity:
+                  properties:
+                    advanced:
+                      description: 亲和性是一组亲和性调度规则。
+                      properties:
+                        podAffinity:
+                          description: 描述POD亲和性调度规则（例如，将该Pod与其他Pod共同定位在同一节点，区域等中）。
+                          properties:
+                            preferredDuringSchedulingIgnoredDuringExecution:
+                              description: 调度程序将更喜欢将Pod调度到满足此字段指定的亲和性表达式的节点，但是它可能会选择违反一个或多个表达式的节点。 最优选的节点是权重总和最大的节点，即对于满足所有调度要求（资源请求，requiredDuringScheduling亲和性表达式等）的每个节点，通过迭代以下元素来计算总和： 如果节点具有与相应podAffinityTerm相匹配的pod，则在该字段中添加“权重”； 总和最高的节点是最优选的。
+                              items:
+                                description: 每个节点都添加了所有匹配的WeightedPodAffinityTerm字段的权重，以找到最适合的节点
+                                properties:
+                                  podAffinityTerm:
+                                    description: 必填，POD亲和性术语，与相应的权重相关。
+                                    properties:
+                                      labelSelector:
+                                        description: 对一组资源（在本例中为POD）进行标签查询
+                                        properties:
+                                          matchExpressions:
+                                            description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                                            items:
+                                              description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                              properties:
+                                                key:
+                                                  description: key是选择器应用于的标签键。
+                                                  type: string
+                                                operator:
+                                                  description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                                  type: string
+                                                values:
+                                                  description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为“存在”或“不存在”，则values数组必须为空。
+                                                  items:
+                                                    type: string
+                                                  type: array
+                                              required:
+                                              - key
+                                              - operator
+                                              type: object
+                                            type: array
+                                          matchLabels:
+                                            additionalProperties:
+                                              type: string
+                                            description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。 多个条件之间使用AND运算。
+                                            type: object
+                                        type: object
+                                      namespaces:
+                                        description: 名称空间指定labelSelector应用于哪个名称空间（匹配）； null或空列表表示“此pod的命名空间”
+                                        items:
+                                          type: string
+                                        type: array
+                                      topologyKey:
+                                        description: 此Pod应该与指定名称空间中与labelSelector匹配的Pod处于同一位置（亲和性）或不处于同一位置（反亲和性），其中，co-located定义为在标签值与关键拓扑Key相同的节点上运行 与运行任何选定Pod的任何节点的节点匹配。 topologyKey不允许为Empty  
+                                        type: string
+                                    required:
+                                    - topologyKey
+                                    type: object
+                                  weight:
+                                    description: 与匹配相应podAffinityTerm关联的权重，范围为1-100。
+                                    format: int32
+                                    type: integer
+                                required:
+                                - podAffinityTerm
+                                - weight
+                                type: object
+                              type: array
+                            requiredDuringSchedulingIgnoredDuringExecution:
+                              description: 如果在调度时未满足此字段指定的亲和性要求，则不会将Pod调度到该节点上。 如果在Pod执行期间某个时候不再满足此字段指定的相似性要求（例如，由于Pod标签更新），则系统可能会或可能不会尝试最终从其节点中退出Pod。 当有多个元素时，与每个podAffinityTerm对应的节点列表将相交，即必须满足所有条件。
+                              items:
+                                description: 定义一组Pod（即与给定名称空间相对应的labelSelector匹配的Pod），此Pod应该位于同一位置（关联）或不位于同一位置（反关联），其中，co-located定义为 在节点上运行，该节点的键值为<topologyKey>的值与正在运行的Pod集中的Pod匹配的任何节点的值匹配
+                                properties:
+                                  labelSelector:
+                                    description: 对一组资源（在本例中为Pod）的标签查询。
+                                    properties:
+                                      matchExpressions:
+                                        description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                                        items:
+                                          description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                          properties:
+                                            key:
+                                              description: 
+                                              type: string
+                                            operator:
+                                              description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                              type: string
+                                            values:
+                                              description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为Exists或DidNotExist，则values数组必须为空。 
+                                              items:
+                                                type: string
+                                              type: array
+                                          required:
+                                          - key
+                                          - operator
+                                          type: object
+                                        type: array
+                                      matchLabels:
+                                        additionalProperties:
+                                          type: string
+                                        description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。 多个图条件使用AND运算。
+                                        type: object
+                                    type: object
+                                  namespaces:
+                                    description: 名称空间指定labelSelector应用于哪个名称空间（匹配）
+                                    items:
+                                      type: string
+                                    type: array
+                                  topologyKey:
+                                    description: 此Pod应该与指定名称空间中与labelSelector匹配的Pod处于同一位置（亲和性）或不处于同一位置（反亲和性），其中，co-located定义为在标签值与关键拓扑Key相同的节点上运行 与运行任何选定Pod的任何节点的节点匹配。topologyKey不允许为Empty  
+                                    type: string
+                                required:
+                                - topologyKey
+                                type: object
+                              type: array
+                          type: object
+                        podAntiAffinity:
+                          description: 描述POD反亲和性调度规则（例如，避免将此Pod与其他Pod放在相同的节点，区域等中）。
+                          properties:
+                            preferredDuringSchedulingIgnoredDuringExecution:
+                              description: 调度程序将更喜欢将Pod调度到满足此字段指定的反亲和表达式的节点，但是它可能会选择违反一个或多个表达式的节点。 最优选的节点是权重总和最大的节点，即对于满足所有调度要求（资源请求，requiredDuringScheduling反亲和性表达式等）的每个节点，通过迭代以下元素来计算总和： 如果节点具有与相应podAffinityTerm相匹配的pod，则在该字段中添加“权重”； 总和最高的节点是最优选的。
+                              items:
+                                description: 每个节点都添加了所有匹配的WeightedPodAffinityTerm字段的权重，以找到最喜欢的节点
+                                properties:
+                                  podAffinityTerm:
+                                    description: 必填项，POD亲和性术语，与相应的权重相关。
+                                    properties:
+                                      labelSelector:
+                                        description: 对一组资源（在本例中为Pod）的标签查询。
+                                        properties:
+                                          matchExpressions:
+                                            description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                                            items:
+                                              description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                              properties:
+                                                key:
+                                                  description: key是选择器应用于的标签键。
+                                                  type: string
+                                                operator:
+                                                  description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                                  type: string
+                                                values:
+                                                  description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为“存在”或“不存在”，则values数组必须为空。
+                                                  items:
+                                                    type: string
+                                                  type: array
+                                              required:
+                                              - key
+                                              - operator
+                                              type: object
+                                            type: array
+                                          matchLabels:
+                                            additionalProperties:
+                                              type: string
+                                            description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。多个条件使用AND运算。
+                                            type: object
+                                        type: object
+                                      namespaces:
+                                        description: 名称空间指定labelSelector应用于哪个名称空间（匹配）； 
+                                        items:
+                                          type: string
+                                        type: array
+                                      topologyKey:
+                                        description: 此Pod应该与指定名称空间中与labelSelector匹配的Pod处于同一位置（亲和性）或不处于同一位置（反亲和性），其中，co-located定义为在标签值与关键拓扑Key相同的节点上运行 与运行任何选定Pod的任何节点的节点匹配。topologyKey不允许为Empty  
+                                        type: string
+                                    required:
+                                    - topologyKey
+                                    type: object
+                                  weight:
+                                    description: 与匹配相应podAffinityTerm关联的权重，范围为1-100。
+                                    format: int32
+                                    type: integer
+                                required:
+                                - podAffinityTerm
+                                - weight
+                                type: object
+                              type: array
+                            requiredDuringSchedulingIgnoredDuringExecution:
+                              description: 如果在调度时未满足此字段指定的抗亲和性要求，则不会将Pod调度到该节点上。 如果在Pod执行期间某个时候不再满足此字段指定的反亲和性要求（例如，由于Pod标签更新），则系统可能会或可能不会尝试最终从其节点退出Pod。 当有多个元素时，与每个podAffinityTerm对应的节点列表将相交，即必须满足所有条件。
+                              items:
+                                description: 定义一组Pod（即与给定名称空间相对应的labelSelector匹配的Pod），此Pod应该位于同一位置（关联）或不位于同一位置（反关联），其中，co-located定义为 在节点上运行，该节点的键值为<topologyKey>的值与正在运行的Pod组中的Pod匹配的任何节点的值匹配
+                                properties:
+                                  labelSelector:
+                                    description: 对一组资源（在本例中为Pod）的标签查询。
+                                    properties:
+                                      matchExpressions:
+                                        description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                                        items:
+                                          description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                          properties:
+                                            key:
+                                              description: key是选择器应用于的标签键。
+                                              type: string
+                                            operator:
+                                              description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                              type: string
+                                            values:
+                                              description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为“存在”或“不存在”，则values数组必须为空。
+                                              items:
+                                                type: string
+                                              type: array
+                                          required:
+                                          - key
+                                          - operator
+                                          type: object
+                                        type: array
+                                      matchLabels:
+                                        additionalProperties:
+                                          type: string
+                                        description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。 要求已进行AND运算。
+                                        type: object
+                                    type: object
+                                  namespaces:
+                                    description: 名称空间指定labelSelector应用于哪个名称空间（匹配）；
+                                    items:
+                                      type: string
+                                    type: array
+                                  topologyKey:
+                                    description: 此Pod应该与指定名称空间中与labelSelector匹配的Pod处于同一位置（亲和性）或不处于同一位置（反亲和性），其中，co-located定义为在标签值与关键拓扑Key相同的节点上运行 与运行任何选定Pod的任何节点的节点匹配。 topologyKey不允许为Empty  
+                                    type: string
+                                required:
+                                - topologyKey
+                                type: object
+                              type: array
+                          type: object
+                      type: object
+                    antiAffinityTopologyKey:
+                      type: string
+                  type: object
+                annotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                configuration:
+                  type: string
+                containerSecurityContext:
+                  description: SecurityContext保留将应用于容器的安全配置。 SecurityContext和PodSecurityContext中都存在一些字段。 同时设置两者时，SecurityContext中的值优先。
+                  properties:
+                    allowPrivilegeEscalation:
+                      description: AllowPrivilegeEscalation控制一个进程是否可以获得比其父进程更多的特权。 该布尔值直接控制是否在容器进程上设置no_new_privs标志。 在以下情况下，AllowPrivilegeEscalation始终为true：1）以特权身份运行 2）具有CAP_SYS_ADMIN
+                      type: boolean
+                    capabilities:
+                      description: 运行容器时添加/删除的功能。 默认为容器运行时授予的默认功能集。
+                      properties:
+                        add:
+                          description: 新增功能
+                          items:
+                            description: 功能代表POSIX功能
+                              type
+                            type: string
+                          type: array
+                        drop:
+                          description: 删除的功能
+                          items:
+                            description: 功能代表POSIX功能
+                              type
+                            type: string
+                          type: array
+                      type: object
+                    privileged:
+                      description: 在特权模式下运行容器。 特权容器中的进程本质上等效于主机上的root。 默认为false。
+                      type: boolean
+                    procMount:
+                      description: procMount表示用于容器的proc安装类型。 默认值为DefaultProcMount，它将容器运行时默认值用于只读路径和掩码路径。 这要求启用ProcMountType功能标志。
+                      type: string
+                    readOnlyRootFilesystem:
+                      description: 此容器是否具有只读的根文件系统。 默认为false。
+                      type: boolean
+                    runAsGroup:
+                      description: 用于运行容器进程入口点的GID。 如果未设置，则使用运行时默认值。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      format: int64
+                      type: integer
+                    runAsNonRoot:
+                      description: 指示容器必须以非root用户身份运行。 如果为true，则Kubelet将在运行时验证映像，以确保它不以UID 0（根）身份运行，并且如果启动，则无法启动容器。 如果未设置或为false，则不会执行此类验证。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      type: boolean
+                    runAsUser:
+                      description: 用于运行容器进程入口点的UID。 如果未指定，则默认为图像元数据中指定的用户。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      format: int64
+                      type: integer
+                    seLinuxOptions:
+                      description: 要应用于容器的SELinux上下文。 如果未指定，则容器运行时将为每个容器分配一个随机的SELinux上下文。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      properties:
+                        level:
+                          description: 级别是适用于容器的SELinux级别标签。
+                          type: string
+                        role:
+                          description: 角色是适用于容器的SELinux角色标签。
+                          type: string
+                        type:
+                          description: 类型是适用于容器的SELinux类型标签。
+                          type: string
+                        user:
+                          description: 用户是适用于容器的SELinux用户标签。
+                          type: string
+                      type: object
+                    windowsOptions:
+                      description: Windows特定设置适用于所有容器。 如果未指定，将使用PodSecurityContext中的选项。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      properties:
+                        gmsaCredentialSpec:
+                          description: GMSA准入网络挂钩（https://github.com/kubernetes-sigs/windows-gmsa）在GMSACredentialSpec内嵌了由GMSACredentialSpecName字段命名的GMSA凭证规范的内容。 此字段为字母级别，仅由启用WindowsGMSA功能标志的服务器使用。
+                          type: string
+                        gmsaCredentialSpecName:
+                          description: GMSACredentialSpecName是要使用的GMSA凭据规范的名称。 此字段为字母级别，仅由启用WindowsGMSA功能标志的服务器使用。
+                          type: string
+                        runAsUserName:
+                          description: Windows中的用户名，用于运行容器进程的入口点。 如果未指定，则默认为图像元数据中指定的用户。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。 此字段是beta级别，可以通过WindowsRunAsUserName功能标志禁用。
+                          type: string
+                      type: object
+                  type: object
+                enabled:
+                  type: boolean
+                forceUnsafeBootstrap:
+                  type: boolean
+                gracePeriod:
+                  format: int64
+                  type: integer
+                image:
+                  type: string
+                imagePullSecrets:
+                  items:
+                    description: LocalObjectReference包含足够的信息，可让您在同一名称空间内找到引用的对象。
+                    properties:
+                      name:
+                        description: 密钥名字。 更多信息：https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                        type: string
+                    type: object
+                  type: array
+                labels:
+                  additionalProperties:
+                    type: string
+                  type: object
+                livenessDelaySec:
+                  format: int32
+                  type: integer
+                loadBalancerSourceRanges:
+                  items:
+                    type: string
+                  type: array
+                nodeSelector:
+                  additionalProperties:
+                    type: string
+                  type: object
+                podDisruptionBudget:
+                  properties:
+                    maxUnavailable:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      x-kubernetes-int-or-string: true
+                    minAvailable:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      x-kubernetes-int-or-string: true
+                  type: object
+                podSecurityContext:
+                  description: PodSecurityContext包含Pod级安全性属性和通用容器设置。 一些字段也存在于container.securityContext中。 container.securityContext的字段值优先于PodSecurityContext的字段值。
+                  properties:
+                    fsGroup:
+                      description: “一个特殊的补充组，适用于Pod中的所有容器。某些卷类型允许Kubelet更改要由Pod拥有的该卷的所有权：\ n 1.拥有的GID将是FSGroup 2. setgid位 已设置（在卷中创建的新文件将归FSGroup拥有）。3.权限位与rw-rw ----进行或运算。\ n如果未设置，则Kubelet将不会修改任何卷的所有权和权限。 ”
+                      format: int64
+                      type: integer
+                    runAsGroup:
+                      description: 用于运行容器进程入口点的GID。 如果未设置，则使用运行时默认值。 也可以在SecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值将优先于该容器。
+                      format: int64
+                      type: integer
+                    runAsNonRoot:
+                      description: 指示容器必须以非root用户身份运行。 如果为true，则Kubelet将在运行时验证映像，以确保它不以UID 0（根）身份运行，并且如果启动，则无法启动容器。 如果未设置或为false，则不会执行此类验证。 也可以在SecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      type: boolean
+                    runAsUser:
+                      description: 用于运行容器进程入口点的UID。 如果未指定，则默认为图像元数据中指定的用户。 也可以在SecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值将优先于该容器。
+                      format: int64
+                      type: integer
+                    seLinuxOptions:
+                      description: SELinux上下文将应用于所有容器。 如果未指定，则容器运行时将为每个容器分配一个随机的SELinux上下文。 也可以在SecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值将优先于该容器。
+                      properties:
+                        level:
+                          description: 级别是适用于容器的SELinux级别标签。
+                          type: string
+                        role:
+                          description: 角色是适用于容器的SELinux角色标签。
+                          type: string
+                        type:
+                          description: 类型是适用于容器的SELinux类型标签。
+                          type: string
+                        user:
+                          description: 用户是适用于容器的SELinux用户标签。
+                          type: string
+                      type: object
+                    supplementalGroups:
+                      description: 除容器的主要GID之外，适用于第一个过程的组的列表在每个容器中运行。 如果未指定，则不会将任何组添加到任何容器。
+                      items:
+                        format: int64
+                        type: integer
+                      type: array
+                    sysctls:
+                      description: Sysctls包含用于Pod的命名空间sysctls列表。 具有不受支持的sysctls的Pod（通过容器运行时）可能无法启动。
+                      items:
+                        description: Sysctl定义要设置的内核参数
+                        properties:
+                          name:
+                            description: 要设置的属性名称
+                            type: string
+                          value:
+                            description: 要设置的属性的值
+                            type: string
+                        required:
+                        - name
+                        - value
+                        type: object
+                      type: array
+                    windowsOptions:
+                      description: Windows特定设置适用于所有容器。 如果未指定，将使用容器的SecurityContext中的选项。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      properties:
+                        gmsaCredentialSpec:
+                          description: GMSA准入网络挂钩（https://github.com/kubernetes-sigs/windows-gmsa）在GMSACredentialSpec内嵌了由GMSACredentialSpecName字段命名的GMSA凭证规范的内容。 此字段为字母级别，仅由启用WindowsGMSA功能标志的服务器使用。
+                          type: string
+                        gmsaCredentialSpecName:
+                          description: GMSACredentialSpecName is the name of the  GMSA credential spec to use. This field is alpha-level and is only honored by servers that enable the WindowsGMSA  feature flag.
+                          type: string
+                        runAsUserName:
+                          description: Windows中的用户名，用于运行容器进程的入口点。 如果未指定，则默认为图像元数据中指定的用户。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。 此字段是beta级别，可以通过WindowsRunAsUserName功能标志禁用。
+                          type: string
+                      type: object
+                  type: object
+                priorityClassName:
+                  type: string
+                readinessDelaySec:
+                  format: int32
+                  type: integer
+                resources:
+                  properties:
+                    limits:
+                      properties:
+                        cpu:
+                          type: string
+                        ephemeral-storage:
+                          type: string
+                        memory:
+                          type: string
+                      type: object
+                    requests:
+                      properties:
+                        cpu:
+                          type: string
+                        ephemeral-storage:
+                          type: string
+                        memory:
+                          type: string
+                      type: object
+                  type: object
+                schedulerName:
+                  type: string
+                serviceAccountName:
+                  type: string
+                serviceAnnotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                serviceType:
+                  description: 
+                  type: string
+                sidecarResources:
+                  properties:
+                    limits:
+                      properties:
+                        cpu:
+                          type: string
+                        ephemeral-storage:
+                          type: string
+                        memory:
+                          type: string
+                      type: object
+                    requests:
+                      properties:
+                        cpu:
+                          type: string
+                        ephemeral-storage:
+                          type: string
+                        memory:
+                          type: string
+                      type: object
+                  type: object
+                size:
+                  format: int32
+                  type: integer
+                sslInternalSecretName:
+                  type: string
+                sslSecretName:
+                  type: string
+                tolerations:
+                  items:
+                    description: 附加了此Toleration的Pod可以使用匹配运算符<operator>来匹配与三重<key，value，effect>匹配的任何污点。
+                    properties:
+                      effect:
+                        description: Effect 表示匹配Effect 相同的污点。  Empty 来匹配所有的污点 Effect 。指定后，允许的值为NoSchedule，PreferNoSchedule和NoExecute。
+                        type: string
+                      key:
+                        description: key是宽容应用于污点的key。空表示匹配所有污点key。 如果key为empty，则operator必须存在。 这种组合方式，以匹配所有的值和所有密钥。
+                        type: string
+                      operator:
+                        description: key是宽容应用于污点的key。空表示匹配所有污点key。 如果key为empty，则operator必须存在。 这种组合方式，以匹配所有的值和所有密钥。
+                        type: string
+                      tolerationSeconds:
+                        description: TolerationSeconds表示的时间段的耐受性（必须是效果NOEXECUTE的，否则忽略该字段）容忍的污点。 默认情况下，它没有设置，该装置永远容忍污点（不逐出）。 零和负的值将被视为0（立即逐出）由系统。
+                        format: int64
+                        type: integer
+                      value:
+                        description: 值是公差匹配的污点值。 如果运算符为Exists，则该值应为empty，否则为常规字符串。
+                        type: string
+                    type: object
+                  type: array
+                vaultSecretName:
+                  type: string
+                volumeSpec:
+                  properties:
+                    emptyDir:
+                      description: EmptyDir为MySQL的数据量使用。 EmptyDir表示一个临时目录，共享一个Pod的生存期。
+                      properties:
+                        medium:
+                          description: 什么类型的存储介质应该备份这个目录。 默认值为""，表示使用节点的默认介质。 必须是一个空字符串（默认）或内存。 更多信息：https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+                          type: string
+                        sizeLimit:
+                          anyOf:
+                          - type: integer
+                          - type: string
+                          description: 此EmptyDir卷所需的本地存储总量。 大小限制也适用于存储介质。 内存介质EmptyDir上的最大使用量是此处指定的SizeLimit和容器中所有容器的内存限制总和之间的最小值。 默认值为nil，这表示未定义限制。 更多信息：http://kubernetes.io/docs/user-guide/volumes#emptydir
+                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                          x-kubernetes-int-or-string: true
+                      type: object
+                    hostPath:
+                      description: 用作MySQL数据量的HostPath。 HostPath表示主机上直接暴露给容器的预先存在的文件或目录。
+                      properties:
+                        path:
+                          description: 主机上目录的路径。 如果该路径是符号链接，它将跟随该链接到达真实路径。 更多信息：https://kubernetes.io/docs/concepts/storage/volumes#hostpath
+                          type: string
+                        type:
+                          description: HostPath卷的类型默认为””更多信息：https://kubernetes.io/docs/concepts/storage/volumes#hostpath
+                          type: string
+                      required:
+                      - path
+                      type: object
+                    persistentVolumeClaim:
+                      description: PersistentVolumeClaim为MySQL数据卷指定PVC规范。 它具有最高优先级，其次是HostPath和EmptyDir。 并代表PVC规范。
+                      properties:
+                        accessModes:
+                          description: AccessModes包含卷应具有的所需访问模式。 更多信息：https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+                          items:
+                            type: string
+                          type: array
+                        dataSource:
+                          description: 此字段要求启用VolumeSnapshotDataSource alpha功能闸，并且当前VolumeSnapshot是唯一受支持的数据源。 如果供应商可以支持VolumeSnapshot数据源，它将创建一个新卷，并且数据将同时还原到该卷。 如果供应商不支持VolumeSnapshot数据源，则不会创建卷，并且将失败报告为事件。 将来，我们计划支持更多的数据源类型，并且预配器的行为可能会改变。
+                          properties:
+                            apiGroup:
+                              description: APIGroup是所引用资源的组。 如果未指定APIGroup，则指定的Kind必须在核心API组中。 对于任何其他第三方类型，APIGroup是必需的。
+                              type: string
+                            kind:
+                              description: 种类是被引用资源的类型
+                              type: string
+                            name:
+                              description: 名称是被引用资源的名称
+                              type: string
+                          required:
+                          - kind
+                          - name
+                          type: object
+                        resources:
+                          description: 资源表示卷应具有的最小资源。 更多信息：https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+                          properties:
+                            limits:
+                              additionalProperties:
+                                anyOf:
+                                - type: integer
+                                - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              description: 限制描述了允许的最大计算资源量。 更多信息：https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+                              type: object
+                            requests:
+                              additionalProperties:
+                                anyOf:
+                                - type: integer
+                                - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              description: 请求描述了所需的最少计算资源量。 如果为容器省略了Requests，则如果已明确指定，则默认为Limits，否则为实现定义的值。 更多信息：https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+                              type: object
+                          type: object
+                        selector:
+                          description: 对卷进行标签查询以考虑进行绑定。
+                          properties:
+                            matchExpressions:
+                              description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                              items:
+                                description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                properties:
+                                  key:
+                                    description: key是选择器应用于的标签键。
+                                    type: string
+                                  operator:
+                                    description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                    type: string
+                                  values:
+                                    description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为“存在”或“不存在”，则values数组必须为空。 该数组的战略合并补丁时更换。
+                                    items:
+                                      type: string
+                                    type: array
+                                required:
+                                - key
+                                - operator
+                                type: object
+                              type: array
+                            matchLabels:
+                              additionalProperties:
+                                type: string
+                              description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。 要求已进行AND运算。
+                              type: object
+                          type: object
+                        storageClassName:
+                          description: 声明所需的StorageClass的名称。 更多信息：https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+                          type: string
+                        volumeMode:
+                          description: volumeMode定义声明要求的卷类型。 如果未包含在声明规范中，则暗示文件系统的值。 这是一个beta功能。
+                          type: string
+                        volumeName:
+                          description: VolumeName是对支持此声明的PersistentVolume的绑定引用。
+                          type: string
+                      type: object
+                  type: object
+              type: object
+            mysqldExporter:
+              properties:
+                enabled:
+                  type: boolean
+                image:
+                  type: string
+                resources:
+                  properties:
+                    limits:
+                      properties:
+                        cpu:
+                          type: string
+                        ephemeral-storage:
+                          type: string
+                        memory:
+                          type: string
+                      type: object
+                    requests:
+                      properties:
+                        cpu:
+                          type: string
+                        ephemeral-storage:
+                          type: string
+                        memory:
+                          type: string
+                      type: object
+                  type: object
+              type: object
+            pause:
+              type: boolean
+            platform:
+              type: string
+            proxysql:
+              properties:
+                affinity:
+                  properties:
+                    advanced:
+                      description: 亲和性是一组亲和性调度规则。
+                      properties:
+                        podAffinity:
+                          description: 描述POD亲和性调度规则（例如，将该Pod与其他Pod共同定位在同一节点，区域等中）。
+                          properties:
+                            preferredDuringSchedulingIgnoredDuringExecution:
+                              description: 调度程序将更喜欢将Pod调度到满足此字段指定的亲和性表达式的节点，但是它可能会选择违反一个或多个表达式的节点。 最优选的节点是权重总和最大的节点，即对于满足所有调度要求（资源请求，requiredDuringScheduling亲和性表达式等）的每个节点，通过迭代以下元素来计算总和： 如果节点具有与相应podAffinityTerm相匹配的pod，则在该字段中添加“权重”； 总和最高的节点是最优选的。
+                              items:
+                                description: 每个节点都添加了所有匹配的WeightedPodAffinityTerm字段的权重，以找到最适合的节点
+                                properties:
+                                  podAffinityTerm:
+                                    description: 必填，POD亲和性术语，与相应的权重相关。
+                                    properties:
+                                      labelSelector:
+                                        description: 对一组资源（在本例中为POD）进行标签查询
+                                        properties:
+                                          matchExpressions:
+                                            description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                                            items:
+                                              description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                              properties:
+                                                key:
+                                                  description: key是选择器应用于的标签键。
+                                                  type: string
+                                                operator:
+                                                  description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                                  type: string
+                                                values:
+                                                  description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为“存在”或“不存在”，则values数组必须为空。
+                                                  items:
+                                                    type: string
+                                                  type: array
+                                              required:
+                                              - key
+                                              - operator
+                                              type: object
+                                            type: array
+                                          matchLabels:
+                                            additionalProperties:
+                                              type: string
+                                            description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。 多个条件之间使用AND运算。
+                                            type: object
+                                        type: object
+                                      namespaces:
+                                        description: 名称空间指定labelSelector应用于哪个名称空间（匹配）； null或空列表表示“此pod的命名空间”
+                                        items:
+                                          type: string
+                                        type: array
+                                      topologyKey:
+                                        description: 此Pod应该与指定名称空间中与labelSelector匹配的Pod处于同一位置（亲和性）或不处于同一位置（反亲和性），其中，co-located定义为在标签值与关键拓扑Key相同的节点上运行 与运行任何选定Pod的任何节点的节点匹配。 topologyKey不允许为Empty  
+                                        type: string
+                                    required:
+                                    - topologyKey
+                                    type: object
+                                  weight:
+                                    description: 与匹配相应podAffinityTerm关联的权重，范围为1-100。
+                                    format: int32
+                                    type: integer
+                                required:
+                                - podAffinityTerm
+                                - weight
+                                type: object
+                              type: array
+                            requiredDuringSchedulingIgnoredDuringExecution:
+                              description: 如果在调度时未满足此字段指定的亲和性要求，则不会将Pod调度到该节点上。 如果在Pod执行期间某个时候不再满足此字段指定的相似性要求（例如，由于Pod标签更新），则系统可能会或可能不会尝试最终从其节点中退出Pod。 当有多个元素时，与每个podAffinityTerm对应的节点列表将相交，即必须满足所有条件。
+                              items:
+                                description: 定义一组Pod（即与给定名称空间相对应的labelSelector匹配的Pod），此Pod应该位于同一位置（关联）或不位于同一位置（反关联），其中，co-located定义为 在节点上运行，该节点的键值为<topologyKey>的值与正在运行的Pod集中的Pod匹配的任何节点的值匹配
+                                properties:
+                                  labelSelector:
+                                    description: 对一组资源（在本例中为Pod）的标签查询。
+                                    properties:
+                                      matchExpressions:
+                                        description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                                        items:
+                                          description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                          properties:
+                                            key:
+                                              description: 
+                                              type: string
+                                            operator:
+                                              description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                              type: string
+                                            values:
+                                              description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为Exists或DidNotExist，则values数组必须为空。 
+                                              items:
+                                                type: string
+                                              type: array
+                                          required:
+                                          - key
+                                          - operator
+                                          type: object
+                                        type: array
+                                      matchLabels:
+                                        additionalProperties:
+                                          type: string
+                                        description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。 多个图条件使用AND运算。
+                                        type: object
+                                    type: object
+                                  namespaces:
+                                    description: 名称空间指定labelSelector应用于哪个名称空间（匹配）
+                                    items:
+                                      type: string
+                                    type: array
+                                  topologyKey:
+                                    description: 此Pod应该与指定名称空间中与labelSelector匹配的Pod处于同一位置（亲和性）或不处于同一位置（反亲和性），其中，co-located定义为在标签值与关键拓扑Key相同的节点上运行 与运行任何选定Pod的任何节点的节点匹配。topologyKey不允许为Empty  
+                                    type: string
+                                required:
+                                - topologyKey
+                                type: object
+                              type: array
+                          type: object
+                        podAntiAffinity:
+                          description: 描述POD反亲和性调度规则（例如，避免将此Pod与其他Pod放在相同的节点，区域等中）。
+                          properties:
+                            preferredDuringSchedulingIgnoredDuringExecution:
+                              description: 调度程序将更喜欢将Pod调度到满足此字段指定的反亲和表达式的节点，但是它可能会选择违反一个或多个表达式的节点。 最优选的节点是权重总和最大的节点，即对于满足所有调度要求（资源请求，requiredDuringScheduling反亲和性表达式等）的每个节点，通过迭代以下元素来计算总和： 如果节点具有与相应podAffinityTerm相匹配的pod，则在该字段中添加“权重”； 总和最高的节点是最优选的。
+                              items:
+                                description: 每个节点都添加了所有匹配的WeightedPodAffinityTerm字段的权重，以找到最喜欢的节点
+                                properties:
+                                  podAffinityTerm:
+                                    description: 必填项，POD亲和性术语，与相应的权重相关。
+                                    properties:
+                                      labelSelector:
+                                        description: 对一组资源（在本例中为Pod）的标签查询。
+                                        properties:
+                                          matchExpressions:
+                                            description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                                            items:
+                                              description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                              properties:
+                                                key:
+                                                  description: key是选择器应用于的标签键。
+                                                  type: string
+                                                operator:
+                                                  description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                                  type: string
+                                                values:
+                                                  description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为“存在”或“不存在”，则values数组必须为空。
+                                                  items:
+                                                    type: string
+                                                  type: array
+                                              required:
+                                              - key
+                                              - operator
+                                              type: object
+                                            type: array
+                                          matchLabels:
+                                            additionalProperties:
+                                              type: string
+                                            description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。多个条件使用AND运算。
+                                            type: object
+                                        type: object
+                                      namespaces:
+                                        description: 名称空间指定labelSelector应用于哪个名称空间（匹配）； 
+                                        items:
+                                          type: string
+                                        type: array
+                                      topologyKey:
+                                        description: 此Pod应该与指定名称空间中与labelSelector匹配的Pod处于同一位置（亲和性）或不处于同一位置（反亲和性），其中，co-located定义为在标签值与关键拓扑Key相同的节点上运行 与运行任何选定Pod的任何节点的节点匹配。topologyKey不允许为Empty  
+                                        type: string
+                                    required:
+                                    - topologyKey
+                                    type: object
+                                  weight:
+                                    description: 与匹配相应podAffinityTerm关联的权重，范围为1-100。
+                                    format: int32
+                                    type: integer
+                                required:
+                                - podAffinityTerm
+                                - weight
+                                type: object
+                              type: array
+                            requiredDuringSchedulingIgnoredDuringExecution:
+                              description: 如果在调度时未满足此字段指定的抗亲和性要求，则不会将Pod调度到该节点上。 如果在Pod执行期间某个时候不再满足此字段指定的反亲和性要求（例如，由于Pod标签更新），则系统可能会或可能不会尝试最终从其节点退出Pod。 当有多个元素时，与每个podAffinityTerm对应的节点列表将相交，即必须满足所有条件。
+                              items:
+                                description: 定义一组Pod（即与给定名称空间相对应的labelSelector匹配的Pod），此Pod应该位于同一位置（关联）或不位于同一位置（反关联），其中，co-located定义为 在节点上运行，该节点的键值为<topologyKey>的值与正在运行的Pod组中的Pod匹配的任何节点的值匹配
+                                properties:
+                                  labelSelector:
+                                    description: 对一组资源（在本例中为Pod）的标签查询。
+                                    properties:
+                                      matchExpressions:
+                                        description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                                        items:
+                                          description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                          properties:
+                                            key:
+                                              description: key是选择器应用于的标签键。
+                                              type: string
+                                            operator:
+                                              description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                              type: string
+                                            values:
+                                              description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为“存在”或“不存在”，则values数组必须为空。
+                                              items:
+                                                type: string
+                                              type: array
+                                          required:
+                                          - key
+                                          - operator
+                                          type: object
+                                        type: array
+                                      matchLabels:
+                                        additionalProperties:
+                                          type: string
+                                        description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。 要求已进行AND运算。
+                                        type: object
+                                    type: object
+                                  namespaces:
+                                    description: 名称空间指定labelSelector应用于哪个名称空间（匹配）；
+                                    items:
+                                      type: string
+                                    type: array
+                                  topologyKey:
+                                    description: 此Pod应该与指定名称空间中与labelSelector匹配的Pod处于同一位置（亲和性）或不处于同一位置（反亲和性），其中，co-located定义为在标签值与关键拓扑Key相同的节点上运行 与运行任何选定Pod的任何节点的节点匹配。 topologyKey不允许为Empty  
+                                    type: string
+                                required:
+                                - topologyKey
+                                type: object
+                              type: array
+                          type: object
+                      type: object
+                    antiAffinityTopologyKey:
+                      type: string
+                  type: object
+                annotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                configuration:
+                  type: string
+                containerSecurityContext:
+                  description: SecurityContext保留将应用于容器的安全配置。 SecurityContext和PodSecurityContext中都存在一些字段。 同时设置两者时，SecurityContext中的值优先。
+                  properties:
+                    allowPrivilegeEscalation:
+                      description: AllowPrivilegeEscalation控制一个进程是否可以获得比其父进程更多的特权。 该布尔值直接控制是否在容器进程上设置no_new_privs标志。 在以下情况下，AllowPrivilegeEscalation始终为true：1）以特权身份运行 2）具有CAP_SYS_ADMIN
+                      type: boolean
+                    capabilities:
+                      description: 运行容器时添加/删除的功能。 默认为容器运行时授予的默认功能集。
+                      properties:
+                        add:
+                          description: 新增功能
+                          items:
+                            description: 功能代表POSIX功能
+                              type
+                            type: string
+                          type: array
+                        drop:
+                          description: 删除的功能
+                          items:
+                            description: 功能代表POSIX功能
+                              type
+                            type: string
+                          type: array
+                      type: object
+                    privileged:
+                      description: 在特权模式下运行容器。 特权容器中的进程本质上等效于主机上的root。 默认为false。
+                      type: boolean
+                    procMount:
+                      description: procMount表示用于容器的proc安装类型。 默认值为DefaultProcMount，它将容器运行时默认值用于只读路径和掩码路径。 这要求启用ProcMountType功能标志。
+                      type: string
+                    readOnlyRootFilesystem:
+                      description: 此容器是否具有只读的根文件系统。 默认为false。
+                      type: boolean
+                    runAsGroup:
+                      description: 用于运行容器进程入口点的GID。 如果未设置，则使用运行时默认值。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      format: int64
+                      type: integer
+                    runAsNonRoot:
+                      description: 指示容器必须以非root用户身份运行。 如果为true，则Kubelet将在运行时验证映像，以确保它不以UID 0（根）身份运行，并且如果启动，则无法启动容器。 如果未设置或为false，则不会执行此类验证。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      type: boolean
+                    runAsUser:
+                      description: 用于运行容器进程入口点的UID。 如果未指定，则默认为图像元数据中指定的用户。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      format: int64
+                      type: integer
+                    seLinuxOptions:
+                      description: 要应用于容器的SELinux上下文。 如果未指定，则容器运行时将为每个容器分配一个随机的SELinux上下文。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      properties:
+                        level:
+                          description: 级别是适用于容器的SELinux级别标签。
+                          type: string
+                        role:
+                          description: 角色是适用于容器的SELinux角色标签。
+                          type: string
+                        type:
+                          description: 类型是适用于容器的SELinux类型标签。
+                          type: string
+                        user:
+                          description: 用户是适用于容器的SELinux用户标签。
+                          type: string
+                      type: object
+                    windowsOptions:
+                      description: Windows特定设置适用于所有容器。 如果未指定，将使用PodSecurityContext中的选项。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      properties:
+                        gmsaCredentialSpec:
+                          description: GMSA准入网络挂钩（https://github.com/kubernetes-sigs/windows-gmsa）在GMSACredentialSpec内嵌了由GMSACredentialSpecName字段命名的GMSA凭证规范的内容。 此字段为字母级别，仅由启用WindowsGMSA功能标志的服务器使用。
+                          type: string
+                        gmsaCredentialSpecName:
+                          description: GMSACredentialSpecName是要使用的GMSA凭据规范的名称。 此字段为字母级别，仅由启用WindowsGMSA功能标志的服务器使用。
+                          type: string
+                        runAsUserName:
+                          description: Windows中的用户名，用于运行容器进程的入口点。 如果未指定，则默认为图像元数据中指定的用户。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。 此字段是beta级别，可以通过WindowsRunAsUserName功能标志禁用。
+                          type: string
+                      type: object
+                  type: object
+                enabled:
+                  type: boolean
+                forceUnsafeBootstrap:
+                  type: boolean
+                gracePeriod:
+                  format: int64
+                  type: integer
+                image:
+                  type: string
+                imagePullSecrets:
+                  items:
+                    description: LocalObjectReference包含足够的信息，可让您在同一名称空间内找到引用的对象。
+                    properties:
+                      name:
+                        description: 密钥名字。 更多信息：https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                        type: string
+                    type: object
+                  type: array
+                labels:
+                  additionalProperties:
+                    type: string
+                  type: object
+                livenessDelaySec:
+                  format: int32
+                  type: integer
+                loadBalancerSourceRanges:
+                  items:
+                    type: string
+                  type: array
+                nodeSelector:
+                  additionalProperties:
+                    type: string
+                  type: object
+                podDisruptionBudget:
+                  properties:
+                    maxUnavailable:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      x-kubernetes-int-or-string: true
+                    minAvailable:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      x-kubernetes-int-or-string: true
+                  type: object
+                podSecurityContext:
+                  description: PodSecurityContext包含Pod级安全性属性和通用容器设置。 一些字段也存在于container.securityContext中。 container.securityContext的字段值优先于PodSecurityContext的字段值。
+                  properties:
+                    fsGroup:
+                      description: “一个特殊的补充组，适用于Pod中的所有容器。某些卷类型允许Kubelet更改要由Pod拥有的该卷的所有权：\ n 1.拥有的GID将是FSGroup 2. setgid位 已设置（在卷中创建的新文件将归FSGroup拥有）。3.权限位与rw-rw ----进行或运算。\ n如果未设置，则Kubelet将不会修改任何卷的所有权和权限。 ”
+                      format: int64
+                      type: integer
+                    runAsGroup:
+                      description: 用于运行容器进程入口点的GID。 如果未设置，则使用运行时默认值。 也可以在SecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值将优先于该容器。
+                      format: int64
+                      type: integer
+                    runAsNonRoot:
+                      description: 指示容器必须以非root用户身份运行。 如果为true，则Kubelet将在运行时验证映像，以确保它不以UID 0（根）身份运行，并且如果启动，则无法启动容器。 如果未设置或为false，则不会执行此类验证。 也可以在SecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      type: boolean
+                    runAsUser:
+                      description: 用于运行容器进程入口点的UID。 如果未指定，则默认为图像元数据中指定的用户。 也可以在SecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值将优先于该容器。
+                      format: int64
+                      type: integer
+                    seLinuxOptions:
+                      description: SELinux上下文将应用于所有容器。 如果未指定，则容器运行时将为每个容器分配一个随机的SELinux上下文。 也可以在SecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值将优先于该容器。
+                      properties:
+                        level:
+                          description: 级别是适用于容器的SELinux级别标签。
+                          type: string
+                        role:
+                          description: 角色是适用于容器的SELinux角色标签。
+                          type: string
+                        type:
+                          description: 类型是适用于容器的SELinux类型标签。
+                          type: string
+                        user:
+                          description: 用户是适用于容器的SELinux用户标签。
+                          type: string
+                      type: object
+                    supplementalGroups:
+                      description: 除容器的主要GID之外，适用于第一个过程的组的列表在每个容器中运行。 如果未指定，则不会将任何组添加到任何容器。
+                      items:
+                        format: int64
+                        type: integer
+                      type: array
+                    sysctls:
+                      description: Sysctls包含用于Pod的命名空间sysctls列表。 具有不受支持的sysctls的Pod（通过容器运行时）可能无法启动。
+                      items:
+                        description: Sysctl定义要设置的内核参数
+                        properties:
+                          name:
+                            description: 要设置的属性名称
+                            type: string
+                          value:
+                            description: 要设置的属性的值
+                            type: string
+                        required:
+                        - name
+                        - value
+                        type: object
+                      type: array
+                    windowsOptions:
+                      description: Windows特定设置适用于所有容器。 如果未指定，将使用容器的SecurityContext中的选项。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      properties:
+                        gmsaCredentialSpec:
+                          description: GMSA准入网络挂钩（https://github.com/kubernetes-sigs/windows-gmsa）在GMSACredentialSpec内嵌了由GMSACredentialSpecName字段命名的GMSA凭证规范的内容。 此字段为字母级别，仅由启用WindowsGMSA功能标志的服务器使用。
+                          type: string
+                        gmsaCredentialSpecName:
+                          description: GMSACredentialSpecName is the name of the  GMSA credential spec to use. This field is alpha-level and is only honored by servers that enable the WindowsGMSA  feature flag.
+                          type: string
+                        runAsUserName:
+                          description: Windows中的用户名，用于运行容器进程的入口点。 如果未指定，则默认为图像元数据中指定的用户。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。 此字段是beta级别，可以通过WindowsRunAsUserName功能标志禁用。
+                          type: string
+                      type: object
+                  type: object
+                priorityClassName:
+                  type: string
+                readinessDelaySec:
+                  format: int32
+                  type: integer
+                resources:
+                  properties:
+                    limits:
+                      properties:
+                        cpu:
+                          type: string
+                        ephemeral-storage:
+                          type: string
+                        memory:
+                          type: string
+                      type: object
+                    requests:
+                      properties:
+                        cpu:
+                          type: string
+                        ephemeral-storage:
+                          type: string
+                        memory:
+                          type: string
+                      type: object
+                  type: object
+                schedulerName:
+                  type: string
+                serviceAccountName:
+                  type: string
+                serviceAnnotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                serviceType:
+                  description: 
+                  type: string
+                sidecarResources:
+                  properties:
+                    limits:
+                      properties:
+                        cpu:
+                          type: string
+                        ephemeral-storage:
+                          type: string
+                        memory:
+                          type: string
+                      type: object
+                    requests:
+                      properties:
+                        cpu:
+                          type: string
+                        ephemeral-storage:
+                          type: string
+                        memory:
+                          type: string
+                      type: object
+                  type: object
+                size:
+                  format: int32
+                  type: integer
+                sslInternalSecretName:
+                  type: string
+                sslSecretName:
+                  type: string
+                tolerations:
+                  items:
+                    description: 附加了此Toleration的Pod可以使用匹配运算符<operator>来匹配与三重<key，value，effect>匹配的任何污点。
+                    properties:
+                      effect:
+                        description: Effect 表示匹配Effect 相同的污点。  Empty 来匹配所有的污点 Effect 。指定后，允许的值为NoSchedule，PreferNoSchedule和NoExecute。
+                        type: string
+                      key:
+                        description: key是宽容应用于污点的key。空表示匹配所有污点key。 如果key为empty，则operator必须存在。 这种组合方式，以匹配所有的值和所有密钥。
+                        type: string
+                      operator:
+                        description: key是宽容应用于污点的key。空表示匹配所有污点key。 如果key为empty，则operator必须存在。 这种组合方式，以匹配所有的值和所有密钥。
+                        type: string
+                      tolerationSeconds:
+                        description: TolerationSeconds表示的时间段的耐受性（必须是效果NOEXECUTE的，否则忽略该字段）容忍的污点。 默认情况下，它没有设置，该装置永远容忍污点（不逐出）。 零和负的值将被视为0（立即逐出）由系统。
+                        format: int64
+                        type: integer
+                      value:
+                        description: 值是公差匹配的污点值。 如果运算符为Exists，则该值应为empty，否则为常规字符串。
+                        type: string
+                    type: object
+                  type: array
+                vaultSecretName:
+                  type: string
+                volumeSpec:
+                  properties:
+                    emptyDir:
+                      description: EmptyDir为MySQL的数据量使用。 EmptyDir表示一个临时目录，共享一个Pod的生存期。
+                      properties:
+                        medium:
+                          description: 什么类型的存储介质应该备份这个目录。 默认值为""，表示使用节点的默认介质。 必须是一个空字符串（默认）或内存。 更多信息：https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+                          type: string
+                        sizeLimit:
+                          anyOf:
+                          - type: integer
+                          - type: string
+                          description: 此EmptyDir卷所需的本地存储总量。 大小限制也适用于存储介质。 内存介质EmptyDir上的最大使用量是此处指定的SizeLimit和容器中所有容器的内存限制总和之间的最小值。 默认值为nil，这表示未定义限制。 更多信息：http://kubernetes.io/docs/user-guide/volumes#emptydir
+                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                          x-kubernetes-int-or-string: true
+                      type: object
+                    hostPath:
+                      description: 用作MySQL数据量的HostPath。 HostPath表示主机上直接暴露给容器的预先存在的文件或目录。
+                      properties:
+                        path:
+                          description: 主机上目录的路径。 如果该路径是符号链接，它将跟随该链接到达真实路径。 更多信息：https://kubernetes.io/docs/concepts/storage/volumes#hostpath
+                          type: string
+                        type:
+                          description: HostPath卷的类型默认为””更多信息：https://kubernetes.io/docs/concepts/storage/volumes#hostpath
+                          type: string
+                      required:
+                      - path
+                      type: object
+                    persistentVolumeClaim:
+                      description: PersistentVolumeClaim为MySQL数据卷指定PVC规范。 它具有最高优先级，其次是HostPath和EmptyDir。 并代表PVC规范。
+                      properties:
+                        accessModes:
+                          description: AccessModes包含卷应具有的所需访问模式。 更多信息：https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+                          items:
+                            type: string
+                          type: array
+                        dataSource:
+                          description: 此字段要求启用VolumeSnapshotDataSource alpha功能闸，并且当前VolumeSnapshot是唯一受支持的数据源。 如果供应商可以支持VolumeSnapshot数据源，它将创建一个新卷，并且数据将同时还原到该卷。 如果供应商不支持VolumeSnapshot数据源，则不会创建卷，并且将失败报告为事件。 将来，我们计划支持更多的数据源类型，并且预配器的行为可能会改变。
+                          properties:
+                            apiGroup:
+                              description: APIGroup是所引用资源的组。 如果未指定APIGroup，则指定的Kind必须在核心API组中。 对于任何其他第三方类型，APIGroup是必需的。
+                              type: string
+                            kind:
+                              description: 种类是被引用资源的类型
+                              type: string
+                            name:
+                              description: 名称是被引用资源的名称
+                              type: string
+                          required:
+                          - kind
+                          - name
+                          type: object
+                        resources:
+                          description: 资源表示卷应具有的最小资源。 更多信息：https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+                          properties:
+                            limits:
+                              additionalProperties:
+                                anyOf:
+                                - type: integer
+                                - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              description: 限制描述了允许的最大计算资源量。 更多信息：https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+                              type: object
+                            requests:
+                              additionalProperties:
+                                anyOf:
+                                - type: integer
+                                - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              description: 请求描述了所需的最少计算资源量。 如果为容器省略了Requests，则如果已明确指定，则默认为Limits，否则为实现定义的值。 更多信息：https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+                              type: object
+                          type: object
+                        selector:
+                          description: 对卷进行标签查询以考虑进行绑定。
+                          properties:
+                            matchExpressions:
+                              description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                              items:
+                                description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                properties:
+                                  key:
+                                    description: key是选择器应用于的标签键。
+                                    type: string
+                                  operator:
+                                    description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                    type: string
+                                  values:
+                                    description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为“存在”或“不存在”，则values数组必须为空。 该数组的战略合并补丁时更换。
+                                    items:
+                                      type: string
+                                    type: array
+                                required:
+                                - key
+                                - operator
+                                type: object
+                              type: array
+                            matchLabels:
+                              additionalProperties:
+                                type: string
+                              description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。 要求已进行AND运算。
+                              type: object
+                          type: object
+                        storageClassName:
+                          description: 声明所需的StorageClass的名称。 更多信息：https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+                          type: string
+                        volumeMode:
+                          description: volumeMode定义声明要求的卷类型。 如果未包含在声明规范中，则暗示文件系统的值。 这是一个beta功能。
+                          type: string
+                        volumeName:
+                          description: VolumeName是对支持此声明的PersistentVolume的绑定引用。
+                          type: string
+                      type: object
+                  type: object
+              type: object
+            pxc:
+              properties:
+                affinity:
+                  properties:
+                    advanced:
+                      description: 亲和性是一组亲和性调度规则。
+                      properties:
+                        podAffinity:
+                          description: 描述POD亲和性调度规则（例如，将该Pod与其他Pod共同定位在同一节点，区域等中）。
+                          properties:
+                            preferredDuringSchedulingIgnoredDuringExecution:
+                              description: 调度程序将更喜欢将Pod调度到满足此字段指定的亲和性表达式的节点，但是它可能会选择违反一个或多个表达式的节点。 最优选的节点是权重总和最大的节点，即对于满足所有调度要求（资源请求，requiredDuringScheduling亲和性表达式等）的每个节点，通过迭代以下元素来计算总和： 如果节点具有与相应podAffinityTerm相匹配的pod，则在该字段中添加“权重”； 总和最高的节点是最优选的。
+                              items:
+                                description: 每个节点都添加了所有匹配的WeightedPodAffinityTerm字段的权重，以找到最适合的节点
+                                properties:
+                                  podAffinityTerm:
+                                    description: 必填，POD亲和性术语，与相应的权重相关。
+                                    properties:
+                                      labelSelector:
+                                        description: 对一组资源（在本例中为POD）进行标签查询
+                                        properties:
+                                          matchExpressions:
+                                            description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                                            items:
+                                              description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                              properties:
+                                                key:
+                                                  description: key是选择器应用于的标签键。
+                                                  type: string
+                                                operator:
+                                                  description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                                  type: string
+                                                values:
+                                                  description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为“存在”或“不存在”，则values数组必须为空。
+                                                  items:
+                                                    type: string
+                                                  type: array
+                                              required:
+                                              - key
+                                              - operator
+                                              type: object
+                                            type: array
+                                          matchLabels:
+                                            additionalProperties:
+                                              type: string
+                                            description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。 多个条件之间使用AND运算。
+                                            type: object
+                                        type: object
+                                      namespaces:
+                                        description: 名称空间指定labelSelector应用于哪个名称空间（匹配）； null或空列表表示“此pod的命名空间”
+                                        items:
+                                          type: string
+                                        type: array
+                                      topologyKey:
+                                        description: 此Pod应该与指定名称空间中与labelSelector匹配的Pod处于同一位置（亲和性）或不处于同一位置（反亲和性），其中，co-located定义为在标签值与关键拓扑Key相同的节点上运行 与运行任何选定Pod的任何节点的节点匹配。 topologyKey不允许为Empty  
+                                        type: string
+                                    required:
+                                    - topologyKey
+                                    type: object
+                                  weight:
+                                    description: 与匹配相应podAffinityTerm关联的权重，范围为1-100。
+                                    format: int32
+                                    type: integer
+                                required:
+                                - podAffinityTerm
+                                - weight
+                                type: object
+                              type: array
+                            requiredDuringSchedulingIgnoredDuringExecution:
+                              description: 如果在调度时未满足此字段指定的亲和性要求，则不会将Pod调度到该节点上。 如果在Pod执行期间某个时候不再满足此字段指定的相似性要求（例如，由于Pod标签更新），则系统可能会或可能不会尝试最终从其节点中退出Pod。 当有多个元素时，与每个podAffinityTerm对应的节点列表将相交，即必须满足所有条件。
+                              items:
+                                description: 定义一组Pod（即与给定名称空间相对应的labelSelector匹配的Pod），此Pod应该位于同一位置（关联）或不位于同一位置（反关联），其中，co-located定义为 在节点上运行，该节点的键值为<topologyKey>的值与正在运行的Pod集中的Pod匹配的任何节点的值匹配
+                                properties:
+                                  labelSelector:
+                                    description: 对一组资源（在本例中为Pod）的标签查询。
+                                    properties:
+                                      matchExpressions:
+                                        description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                                        items:
+                                          description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                          properties:
+                                            key:
+                                              description: 
+                                              type: string
+                                            operator:
+                                              description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                              type: string
+                                            values:
+                                              description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为Exists或DidNotExist，则values数组必须为空。 
+                                              items:
+                                                type: string
+                                              type: array
+                                          required:
+                                          - key
+                                          - operator
+                                          type: object
+                                        type: array
+                                      matchLabels:
+                                        additionalProperties:
+                                          type: string
+                                        description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。 多个图条件使用AND运算。
+                                        type: object
+                                    type: object
+                                  namespaces:
+                                    description: 名称空间指定labelSelector应用于哪个名称空间（匹配）
+                                    items:
+                                      type: string
+                                    type: array
+                                  topologyKey:
+                                    description: 此Pod应该与指定名称空间中与labelSelector匹配的Pod处于同一位置（亲和性）或不处于同一位置（反亲和性），其中，co-located定义为在标签值与关键拓扑Key相同的节点上运行 与运行任何选定Pod的任何节点的节点匹配。topologyKey不允许为Empty  
+                                    type: string
+                                required:
+                                - topologyKey
+                                type: object
+                              type: array
+                          type: object
+                        podAntiAffinity:
+                          description: 描述POD反亲和性调度规则（例如，避免将此Pod与其他Pod放在相同的节点，区域等中）。
+                          properties:
+                            preferredDuringSchedulingIgnoredDuringExecution:
+                              description: 调度程序将更喜欢将Pod调度到满足此字段指定的反亲和表达式的节点，但是它可能会选择违反一个或多个表达式的节点。 最优选的节点是权重总和最大的节点，即对于满足所有调度要求（资源请求，requiredDuringScheduling反亲和性表达式等）的每个节点，通过迭代以下元素来计算总和： 如果节点具有与相应podAffinityTerm相匹配的pod，则在该字段中添加“权重”； 总和最高的节点是最优选的。
+                              items:
+                                description: 每个节点都添加了所有匹配的WeightedPodAffinityTerm字段的权重，以找到最喜欢的节点
+                                properties:
+                                  podAffinityTerm:
+                                    description: 必填项，POD亲和性术语，与相应的权重相关。
+                                    properties:
+                                      labelSelector:
+                                        description: 对一组资源（在本例中为Pod）的标签查询。
+                                        properties:
+                                          matchExpressions:
+                                            description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                                            items:
+                                              description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                              properties:
+                                                key:
+                                                  description: key是选择器应用于的标签键。
+                                                  type: string
+                                                operator:
+                                                  description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                                  type: string
+                                                values:
+                                                  description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为“存在”或“不存在”，则values数组必须为空。
+                                                  items:
+                                                    type: string
+                                                  type: array
+                                              required:
+                                              - key
+                                              - operator
+                                              type: object
+                                            type: array
+                                          matchLabels:
+                                            additionalProperties:
+                                              type: string
+                                            description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。多个条件使用AND运算。
+                                            type: object
+                                        type: object
+                                      namespaces:
+                                        description: 名称空间指定labelSelector应用于哪个名称空间（匹配）； 
+                                        items:
+                                          type: string
+                                        type: array
+                                      topologyKey:
+                                        description: 此Pod应该与指定名称空间中与labelSelector匹配的Pod处于同一位置（亲和性）或不处于同一位置（反亲和性），其中，co-located定义为在标签值与关键拓扑Key相同的节点上运行 与运行任何选定Pod的任何节点的节点匹配。topologyKey不允许为Empty  
+                                        type: string
+                                    required:
+                                    - topologyKey
+                                    type: object
+                                  weight:
+                                    description: 与匹配相应podAffinityTerm关联的权重，范围为1-100。
+                                    format: int32
+                                    type: integer
+                                required:
+                                - podAffinityTerm
+                                - weight
+                                type: object
+                              type: array
+                            requiredDuringSchedulingIgnoredDuringExecution:
+                              description: 如果在调度时未满足此字段指定的抗亲和性要求，则不会将Pod调度到该节点上。 如果在Pod执行期间某个时候不再满足此字段指定的反亲和性要求（例如，由于Pod标签更新），则系统可能会或可能不会尝试最终从其节点退出Pod。 当有多个元素时，与每个podAffinityTerm对应的节点列表将相交，即必须满足所有条件。
+                              items:
+                                description: 定义一组Pod（即与给定名称空间相对应的labelSelector匹配的Pod），此Pod应该位于同一位置（关联）或不位于同一位置（反关联），其中，co-located定义为 在节点上运行，该节点的键值为<topologyKey>的值与正在运行的Pod组中的Pod匹配的任何节点的值匹配
+                                properties:
+                                  labelSelector:
+                                    description: 对一组资源（在本例中为Pod）的标签查询。
+                                    properties:
+                                      matchExpressions:
+                                        description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                                        items:
+                                          description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                          properties:
+                                            key:
+                                              description: key是选择器应用于的标签键。
+                                              type: string
+                                            operator:
+                                              description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                              type: string
+                                            values:
+                                              description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为“存在”或“不存在”，则values数组必须为空。
+                                              items:
+                                                type: string
+                                              type: array
+                                          required:
+                                          - key
+                                          - operator
+                                          type: object
+                                        type: array
+                                      matchLabels:
+                                        additionalProperties:
+                                          type: string
+                                        description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。 要求已进行AND运算。
+                                        type: object
+                                    type: object
+                                  namespaces:
+                                    description: 名称空间指定labelSelector应用于哪个名称空间（匹配）；
+                                    items:
+                                      type: string
+                                    type: array
+                                  topologyKey:
+                                    description: 此Pod应该与指定名称空间中与labelSelector匹配的Pod处于同一位置（亲和性）或不处于同一位置（反亲和性），其中，co-located定义为在标签值与关键拓扑Key相同的节点上运行 与运行任何选定Pod的任何节点的节点匹配。 topologyKey不允许为Empty  
+                                    type: string
+                                required:
+                                - topologyKey
+                                type: object
+                              type: array
+                          type: object
+                      type: object
+                    antiAffinityTopologyKey:
+                      type: string
+                  type: object
+                annotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                configuration:
+                  type: string
+                containerSecurityContext:
+                  description: SecurityContext保留将应用于容器的安全配置。 SecurityContext和PodSecurityContext中都存在一些字段。 同时设置两者时，SecurityContext中的值优先。
+                  properties:
+                    allowPrivilegeEscalation:
+                      description: AllowPrivilegeEscalation控制一个进程是否可以获得比其父进程更多的特权。 该布尔值直接控制是否在容器进程上设置no_new_privs标志。 在以下情况下，AllowPrivilegeEscalation始终为true：1）以特权身份运行 2）具有CAP_SYS_ADMIN
+                      type: boolean
+                    capabilities:
+                      description: 运行容器时添加/删除的功能。 默认为容器运行时授予的默认功能集。
+                      properties:
+                        add:
+                          description: 新增功能
+                          items:
+                            description: 功能代表POSIX功能
+                              type
+                            type: string
+                          type: array
+                        drop:
+                          description: 删除的功能
+                          items:
+                            description: 功能代表POSIX功能
+                              type
+                            type: string
+                          type: array
+                      type: object
+                    privileged:
+                      description: 在特权模式下运行容器。 特权容器中的进程本质上等效于主机上的root。 默认为false。
+                      type: boolean
+                    procMount:
+                      description: procMount表示用于容器的proc安装类型。 默认值为DefaultProcMount，它将容器运行时默认值用于只读路径和掩码路径。 这要求启用ProcMountType功能标志。
+                      type: string
+                    readOnlyRootFilesystem:
+                      description: 此容器是否具有只读的根文件系统。 默认为false。
+                      type: boolean
+                    runAsGroup:
+                      description: 用于运行容器进程入口点的GID。 如果未设置，则使用运行时默认值。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      format: int64
+                      type: integer
+                    runAsNonRoot:
+                      description: 指示容器必须以非root用户身份运行。 如果为true，则Kubelet将在运行时验证映像，以确保它不以UID 0（根）身份运行，并且如果启动，则无法启动容器。 如果未设置或为false，则不会执行此类验证。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      type: boolean
+                    runAsUser:
+                      description: 用于运行容器进程入口点的UID。 如果未指定，则默认为图像元数据中指定的用户。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      format: int64
+                      type: integer
+                    seLinuxOptions:
+                      description: 要应用于容器的SELinux上下文。 如果未指定，则容器运行时将为每个容器分配一个随机的SELinux上下文。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      properties:
+                        level:
+                          description: 级别是适用于容器的SELinux级别标签。
+                          type: string
+                        role:
+                          description: 角色是适用于容器的SELinux角色标签。
+                          type: string
+                        type:
+                          description: 类型是适用于容器的SELinux类型标签。
+                          type: string
+                        user:
+                          description: 用户是适用于容器的SELinux用户标签。
+                          type: string
+                      type: object
+                    windowsOptions:
+                      description: Windows特定设置适用于所有容器。 如果未指定，将使用PodSecurityContext中的选项。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      properties:
+                        gmsaCredentialSpec:
+                          description: GMSA准入网络挂钩（https://github.com/kubernetes-sigs/windows-gmsa）在GMSACredentialSpec内嵌了由GMSACredentialSpecName字段命名的GMSA凭证规范的内容。 此字段为字母级别，仅由启用WindowsGMSA功能标志的服务器使用。
+                          type: string
+                        gmsaCredentialSpecName:
+                          description: GMSACredentialSpecName是要使用的GMSA凭据规范的名称。 此字段为字母级别，仅由启用WindowsGMSA功能标志的服务器使用。
+                          type: string
+                        runAsUserName:
+                          description: Windows中的用户名，用于运行容器进程的入口点。 如果未指定，则默认为图像元数据中指定的用户。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。 此字段是beta级别，可以通过WindowsRunAsUserName功能标志禁用。
+                          type: string
+                      type: object
+                  type: object
+                enabled:
+                  type: boolean
+                forceUnsafeBootstrap:
+                  type: boolean
+                gracePeriod:
+                  format: int64
+                  type: integer
+                image:
+                  type: string
+                imagePullSecrets:
+                  items:
+                    description: LocalObjectReference包含足够的信息，可让您在同一名称空间内找到引用的对象。
+                    properties:
+                      name:
+                        description: 密钥名字。 更多信息：https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                        type: string
+                    type: object
+                  type: array
+                labels:
+                  additionalProperties:
+                    type: string
+                  type: object
+                livenessDelaySec:
+                  format: int32
+                  type: integer
+                loadBalancerSourceRanges:
+                  items:
+                    type: string
+                  type: array
+                nodeSelector:
+                  additionalProperties:
+                    type: string
+                  type: object
+                podDisruptionBudget:
+                  properties:
+                    maxUnavailable:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      x-kubernetes-int-or-string: true
+                    minAvailable:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      x-kubernetes-int-or-string: true
+                  type: object
+                podSecurityContext:
+                  description: PodSecurityContext包含Pod级安全性属性和通用容器设置。 一些字段也存在于container.securityContext中。 container.securityContext的字段值优先于PodSecurityContext的字段值。
+                  properties:
+                    fsGroup:
+                      description: “一个特殊的补充组，适用于Pod中的所有容器。某些卷类型允许Kubelet更改要由Pod拥有的该卷的所有权：\ n 1.拥有的GID将是FSGroup 2. setgid位 已设置（在卷中创建的新文件将归FSGroup拥有）。3.权限位与rw-rw ----进行或运算。\ n如果未设置，则Kubelet将不会修改任何卷的所有权和权限。 ”
+                      format: int64
+                      type: integer
+                    runAsGroup:
+                      description: 用于运行容器进程入口点的GID。 如果未设置，则使用运行时默认值。 也可以在SecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值将优先于该容器。
+                      format: int64
+                      type: integer
+                    runAsNonRoot:
+                      description: 指示容器必须以非root用户身份运行。 如果为true，则Kubelet将在运行时验证映像，以确保它不以UID 0（根）身份运行，并且如果启动，则无法启动容器。 如果未设置或为false，则不会执行此类验证。 也可以在SecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      type: boolean
+                    runAsUser:
+                      description: 用于运行容器进程入口点的UID。 如果未指定，则默认为图像元数据中指定的用户。 也可以在SecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值将优先于该容器。
+                      format: int64
+                      type: integer
+                    seLinuxOptions:
+                      description: SELinux上下文将应用于所有容器。 如果未指定，则容器运行时将为每个容器分配一个随机的SELinux上下文。 也可以在SecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值将优先于该容器。
+                      properties:
+                        level:
+                          description: 级别是适用于容器的SELinux级别标签。
+                          type: string
+                        role:
+                          description: 角色是适用于容器的SELinux角色标签。
+                          type: string
+                        type:
+                          description: 类型是适用于容器的SELinux类型标签。
+                          type: string
+                        user:
+                          description: 用户是适用于容器的SELinux用户标签。
+                          type: string
+                      type: object
+                    supplementalGroups:
+                      description: 除容器的主要GID之外，适用于第一个过程的组的列表在每个容器中运行。 如果未指定，则不会将任何组添加到任何容器。
+                      items:
+                        format: int64
+                        type: integer
+                      type: array
+                    sysctls:
+                      description: Sysctls包含用于Pod的命名空间sysctls列表。 具有不受支持的sysctls的Pod（通过容器运行时）可能无法启动。
+                      items:
+                        description: Sysctl定义要设置的内核参数
+                        properties:
+                          name:
+                            description: 要设置的属性名称
+                            type: string
+                          value:
+                            description: 要设置的属性的值
+                            type: string
+                        required:
+                        - name
+                        - value
+                        type: object
+                      type: array
+                    windowsOptions:
+                      description: Windows特定设置适用于所有容器。 如果未指定，将使用容器的SecurityContext中的选项。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。
+                      properties:
+                        gmsaCredentialSpec:
+                          description: GMSA准入网络挂钩（https://github.com/kubernetes-sigs/windows-gmsa）在GMSACredentialSpec内嵌了由GMSACredentialSpecName字段命名的GMSA凭证规范的内容。 此字段为字母级别，仅由启用WindowsGMSA功能标志的服务器使用。
+                          type: string
+                        gmsaCredentialSpecName:
+                          description: GMSACredentialSpecName is the name of the  GMSA credential spec to use. This field is alpha-level and is only honored by servers that enable the WindowsGMSA  feature flag.
+                          type: string
+                        runAsUserName:
+                          description: Windows中的用户名，用于运行容器进程的入口点。 如果未指定，则默认为图像元数据中指定的用户。 也可以在PodSecurityContext中设置。 如果同时在SecurityContext和PodSecurityContext中设置，则SecurityContext中指定的值优先。 此字段是beta级别，可以通过WindowsRunAsUserName功能标志禁用。
+                          type: string
+                      type: object
+                  type: object
+                priorityClassName:
+                  type: string
+                readinessDelaySec:
+                  format: int32
+                  type: integer
+                resources:
+                  properties:
+                    limits:
+                      properties:
+                        cpu:
+                          type: string
+                        ephemeral-storage:
+                          type: string
+                        memory:
+                          type: string
+                      type: object
+                    requests:
+                      properties:
+                        cpu:
+                          type: string
+                        ephemeral-storage:
+                          type: string
+                        memory:
+                          type: string
+                      type: object
+                  type: object
+                schedulerName:
+                  type: string
+                serviceAccountName:
+                  type: string
+                serviceAnnotations:
+                  additionalProperties:
+                    type: string
+                  type: object
+                serviceType:
+                  description: 
+                  type: string
+                sidecarResources:
+                  properties:
+                    limits:
+                      properties:
+                        cpu:
+                          type: string
+                        ephemeral-storage:
+                          type: string
+                        memory:
+                          type: string
+                      type: object
+                    requests:
+                      properties:
+                        cpu:
+                          type: string
+                        ephemeral-storage:
+                          type: string
+                        memory:
+                          type: string
+                      type: object
+                  type: object
+                size:
+                  format: int32
+                  type: integer
+                sslInternalSecretName:
+                  type: string
+                sslSecretName:
+                  type: string
+                tolerations:
+                  items:
+                    description: 附加了此Toleration的Pod可以使用匹配运算符<operator>来匹配与三重<key，value，effect>匹配的任何污点。
+                    properties:
+                      effect:
+                        description: Effect 表示匹配Effect 相同的污点。  Empty 来匹配所有的污点 Effect 。指定后，允许的值为NoSchedule，PreferNoSchedule和NoExecute。
+                        type: string
+                      key:
+                        description: key是宽容应用于污点的key。空表示匹配所有污点key。 如果key为empty，则operator必须存在。 这种组合方式，以匹配所有的值和所有密钥。
+                        type: string
+                      operator:
+                        description: key是宽容应用于污点的key。空表示匹配所有污点key。 如果key为empty，则operator必须存在。 这种组合方式，以匹配所有的值和所有密钥。
+                        type: string
+                      tolerationSeconds:
+                        description: TolerationSeconds表示的时间段的耐受性（必须是效果NOEXECUTE的，否则忽略该字段）容忍的污点。 默认情况下，它没有设置，该装置永远容忍污点（不逐出）。 零和负的值将被视为0（立即逐出）由系统。
+                        format: int64
+                        type: integer
+                      value:
+                        description: 值是公差匹配的污点值。 如果运算符为Exists，则该值应为empty，否则为常规字符串。
+                        type: string
+                    type: object
+                  type: array
+                vaultSecretName:
+                  type: string
+                volumeSpec:
+                  properties:
+                    emptyDir:
+                      description: EmptyDir为MySQL的数据量使用。 EmptyDir表示一个临时目录，共享一个Pod的生存期。
+                      properties:
+                        medium:
+                          description: 什么类型的存储介质应该备份这个目录。 默认值为""，表示使用节点的默认介质。 必须是一个空字符串（默认）或内存。 更多信息：https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+                          type: string
+                        sizeLimit:
+                          anyOf:
+                          - type: integer
+                          - type: string
+                          description: 此EmptyDir卷所需的本地存储总量。 大小限制也适用于存储介质。 内存介质EmptyDir上的最大使用量是此处指定的SizeLimit和容器中所有容器的内存限制总和之间的最小值。 默认值为nil，这表示未定义限制。 更多信息：http://kubernetes.io/docs/user-guide/volumes#emptydir
+                          pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                          x-kubernetes-int-or-string: true
+                      type: object
+                    hostPath:
+                      description: 用作MySQL数据量的HostPath。 HostPath表示主机上直接暴露给容器的预先存在的文件或目录。
+                      properties:
+                        path:
+                          description: 主机上目录的路径。 如果该路径是符号链接，它将跟随该链接到达真实路径。 更多信息：https://kubernetes.io/docs/concepts/storage/volumes#hostpath
+                          type: string
+                        type:
+                          description: HostPath卷的类型默认为””更多信息：https://kubernetes.io/docs/concepts/storage/volumes#hostpath
+                          type: string
+                      required:
+                      - path
+                      type: object
+                    persistentVolumeClaim:
+                      description: PersistentVolumeClaim为MySQL数据卷指定PVC规范。 它具有最高优先级，其次是HostPath和EmptyDir。 并代表PVC规范。
+                      properties:
+                        accessModes:
+                          description: AccessModes包含卷应具有的所需访问模式。 更多信息：https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+                          items:
+                            type: string
+                          type: array
+                        dataSource:
+                          description: 此字段要求启用VolumeSnapshotDataSource alpha功能闸，并且当前VolumeSnapshot是唯一受支持的数据源。 如果供应商可以支持VolumeSnapshot数据源，它将创建一个新卷，并且数据将同时还原到该卷。 如果供应商不支持VolumeSnapshot数据源，则不会创建卷，并且将失败报告为事件。 将来，我们计划支持更多的数据源类型，并且预配器的行为可能会改变。
+                          properties:
+                            apiGroup:
+                              description: APIGroup是所引用资源的组。 如果未指定APIGroup，则指定的Kind必须在核心API组中。 对于任何其他第三方类型，APIGroup是必需的。
+                              type: string
+                            kind:
+                              description: 种类是被引用资源的类型
+                              type: string
+                            name:
+                              description: 名称是被引用资源的名称
+                              type: string
+                          required:
+                          - kind
+                          - name
+                          type: object
+                        resources:
+                          description: 资源表示卷应具有的最小资源。 更多信息：https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+                          properties:
+                            limits:
+                              additionalProperties:
+                                anyOf:
+                                - type: integer
+                                - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              description: 限制描述了允许的最大计算资源量。 更多信息：https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+                              type: object
+                            requests:
+                              additionalProperties:
+                                anyOf:
+                                - type: integer
+                                - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              description: 请求描述了所需的最少计算资源量。 如果为容器省略了Requests，则如果已明确指定，则默认为Limits，否则为实现定义的值。 更多信息：https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+                              type: object
+                          type: object
+                        selector:
+                          description: 对卷进行标签查询以考虑进行绑定。
+                          properties:
+                            matchExpressions:
+                              description: matchExpressions是标签选择器要求的列表。 要求已进行AND运算。
+                              items:
+                                description: 标签选择器要求是一个选择器，它包含值，键以及将键和值相关联的运算符。
+                                properties:
+                                  key:
+                                    description: key是选择器应用于的标签键。
+                                    type: string
+                                  operator:
+                                    description: 运算符表示键与一组值的关系。 有效的运算符为In，NotIn，Exists和DidNotExist。
+                                    type: string
+                                  values:
+                                    description: values是字符串值的数组。 如果运算符为In或NotIn，则values数组必须为非空。 如果运算符为“存在”或“不存在”，则values数组必须为空。 该数组的战略合并补丁时更换。
+                                    items:
+                                      type: string
+                                    type: array
+                                required:
+                                - key
+                                - operator
+                                type: object
+                              type: array
+                            matchLabels:
+                              additionalProperties:
+                                type: string
+                              description: matchLabels是{key，value}对的映射。 matchLabels映射中的单个{key，value}等同于matchExpressions的元素，其key字段为“ key”，运算符为“ In”，而values数组仅包含“ value”。 要求已进行AND运算。
+                              type: object
+                          type: object
+                        storageClassName:
+                          description: 声明所需的StorageClass的名称。 更多信息：https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+                          type: string
+                        volumeMode:
+                          description: volumeMode定义声明要求的卷类型。 如果未包含在声明规范中，则暗示文件系统的值。 这是一个beta功能。
+                          type: string
+                        volumeName:
+                          description: VolumeName是对支持此声明的PersistentVolume的绑定引用。
+                          type: string
+                      type: object
+                  type: object
+              type: object
+            pxcLogPath:
+              type: string
+            secretsName:
+              type: string
+            sslInternalSecretName:
+              type: string
+            sslSecretName:
+              type: string
+            updateStrategy:
+              description: StatefulSetUpdateStrategyType是一个字符串枚举类型，它列举StatefulSet的所有可能的更新策略。包含SmartUpdate/OnDelete
+              type: string
+            upgradeOptions:
+              properties:
+                apply:
+                  type: string
+                schedule:
+                  type: string
+                versionServiceEndpoint:
+                  type: string
+              type: object
+            vaultSecretName:
+              type: string
+          type: object
+        status:
+          description: 
+          properties:
+            backup:
+              properties:
+                image:
+                  type: string
+                message:
+                  type: string
+                ready:
+                  format: int32
+                  type: integer
+                size:
+                  format: int32
+                  type: integer
+                status:
+                  type: string
+                version:
+                  type: string
+              type: object
+            conditions:
+              items:
+                properties:
+                  lastTransitionTime:
+                    format: date-time
+                    type: string
+                  message:
+                    type: string
+                  reason:
+                    type: string
+                  status:
+                    type: string
+                  type:
+                    type: string
+                type: object
+              type: array
+            haproxy:
+              properties:
+                image:
+                  type: string
+                message:
+                  type: string
+                ready:
+                  format: int32
+                  type: integer
+                size:
+                  format: int32
+                  type: integer
+                status:
+                  type: string
+                version:
+                  type: string
+              type: object
+            host:
+              type: string
+            message:
+              items:
+                type: string
+              type: array
+            observedGeneration:
+              format: int64
+              type: integer
+            pmm:
+              properties:
+                image:
+                  type: string
+                message:
+                  type: string
+                ready:
+                  format: int32
+                  type: integer
+                size:
+                  format: int32
+                  type: integer
+                status:
+                  type: string
+                version:
+                  type: string
+              type: object
+            proxysql:
+              properties:
+                image:
+                  type: string
+                message:
+                  type: string
+                ready:
+                  format: int32
+                  type: integer
+                size:
+                  format: int32
+                  type: integer
+                status:
+                  type: string
+                version:
+                  type: string
+              type: object
+            pxc:
+              properties:
+                image:
+                  type: string
+                message:
+                  type: string
+                ready:
+                  format: int32
+                  type: integer
+                size:
+                  format: int32
+                  type: integer
+                status:
+                  type: string
+                version:
+                  type: string
+              type: object
+            state:
+              type: string
+          type: object
+      type: object
+  versions:
+  - {name: v1-5-0, served: true, storage: true}
+  - {name: v1, served: true, storage: false}
+  - {name: v1-1-0, served: true, storage: false}
+  - {name: v1-2-0, served: true, storage: false}
+  - {name: v1-3-0, served: true, storage: false}
+  - {name: v1-4-0, served: true, storage: false}
+  - {name: v1alpha1, served: true, storage: false}
+

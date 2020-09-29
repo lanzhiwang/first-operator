@@ -1,0 +1,396 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  name: rabbitmq-cluster-operator.v0.8.0
+  namespace: placeholder
+  annotations:
+    alm-examples: >-
+      [{"apiVersion":"rabbitmq.com/v1beta1","kind":"RabbitmqCluster","metadata":{"name":"sample"},"spec":{"replicas":1}}]
+    categories: ''
+    certified: 'false'
+    createdAt: ''
+    description: '用于管理 Kubernetes 集群上的 RabbitMQ 集群。 '
+    containerImage: ''
+    support: ''
+    capabilities: Basic Install
+    repository: ''
+spec:
+  displayName: RabbitMQ Operator
+  description: >
+    ## 介绍
+
+    RabbitMQ RabbitMQ是部署最广泛的开源消息中间件。.
+
+    ## Operator 介绍
+
+    管理部署在[Kubernetes](https://kubernetes.io/)上的[RabbitMQ](https://www.rabbitmq.com/)集群。
+    RabbitMQ Cluster Kubernetes Operator 使用
+    [Kubebuilder](https://github.com/kubernetes-sigs/kubebuilder)框架实现，遵循[operator
+    pattern](https://coreos.com/blog/introducing-operators.html)的开发规范。
+    包含了对RabbitMQ的生命周期管理。
+  maturity: stable
+  version: 0.8.0
+  replaces: ''
+  skips: []
+  minKubeVersion: 1.16.0
+  keywords: []
+  maintainers:
+    - name: ''
+      email: ''
+  provider:
+    name: System
+  labels: {}
+  selector:
+    matchLabels: {}
+  links:
+    - name: Documentation
+      url: 'https://www.rabbitmq.com/kubernetes/operator/operator-overview.html'
+    - name: GitHub
+      url: 'https://github.com/rabbitmq/cluster-operator'
+  icon:
+    - base64data: >-
+        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
+      mediatype: image/png
+  customresourcedefinitions:
+    owned:
+      - name: rabbitmqclusters.rabbitmq.com
+        displayName: RabbitmqCluster
+        kind: RabbitmqCluster
+        version: v1beta1
+        description: Rabbitmq Cluster
+        resources:
+          - version: v1
+            kind: Deployment
+          - version: v1
+            kind: Service
+          - version: v1
+            kind: ReplicaSet
+          - version: v1
+            kind: Pod
+          - version: v1
+            kind: Secret
+          - version: v1
+            kind: ConfigMap
+        specDescriptors: []
+        statusDescriptors: []
+    required: []
+  install:
+    strategy: deployment
+    spec:
+      permissions:
+        - serviceAccountName: rabbitmq-cluster-operator
+          rules:
+            - apiGroups:
+                - ''
+              resources:
+                - configmaps
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - ''
+              resources:
+                - configmaps/status
+              verbs:
+                - get
+                - update
+                - patch
+            - apiGroups:
+                - ''
+              resources:
+                - events
+              verbs:
+                - create
+      clusterPermissions:
+        - serviceAccountName: rabbitmq-cluster-operator
+          rules:
+            - apiGroups:
+                - ''
+              resources:
+                - configmaps
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - ''
+              resources:
+                - configmaps/status
+              verbs:
+                - get
+                - patch
+                - update
+            - apiGroups:
+                - ''
+              resources:
+                - endpoints
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - ''
+              resources:
+                - endpoints/status
+              verbs:
+                - get
+                - patch
+                - update
+            - apiGroups:
+                - ''
+              resources:
+                - events
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - ''
+              resources:
+                - persistentvolumeclaims
+              verbs:
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - ''
+              resources:
+                - persistentvolumeclaims/status
+              verbs:
+                - get
+                - patch
+                - update
+            - apiGroups:
+                - ''
+              resources:
+                - pods
+              verbs:
+                - get
+                - list
+                - update
+                - watch
+            - apiGroups:
+                - ''
+              resources:
+                - pods/exec
+              verbs:
+                - create
+            - apiGroups:
+                - ''
+              resources:
+                - secrets
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - ''
+              resources:
+                - secrets/status
+              verbs:
+                - get
+                - patch
+                - update
+            - apiGroups:
+                - ''
+              resources:
+                - serviceaccounts
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - ''
+              resources:
+                - services
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - ''
+              resources:
+                - services/status
+              verbs:
+                - get
+                - patch
+                - update
+            - apiGroups:
+                - apps
+              resources:
+                - statefulsets
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - apps
+              resources:
+                - statefulsets/status
+              verbs:
+                - get
+                - patch
+                - update
+            - apiGroups:
+                - apps
+              resources:
+                - deployments
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - apps
+              resources:
+                - deployments/status
+              verbs:
+                - get
+                - patch
+                - update
+            - apiGroups:
+                - rabbitmq.com
+              resources:
+                - rabbitmqclusters
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - rabbitmq.com
+              resources:
+                - rabbitmqclusters/status
+              verbs:
+                - get
+                - patch
+                - update
+            - apiGroups:
+                - rbac.authorization.k8s.io
+              resources:
+                - rolebindings
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - rbac.authorization.k8s.io
+              resources:
+                - roles
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+            - apiGroups:
+                - monitoring.coreos.com
+              resources:
+                - servicemonitors
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
+      deployments:
+        - name: rabbitmq-cluster-operator
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app.kubernetes.io/name: rabbitmq-cluster-operator
+            template:
+              metadata:
+                labels:
+                  app.kubernetes.io/component: rabbitmq-cluster-operator
+                  app.kubernetes.io/name: rabbitmq-cluster-operator
+                  app.kubernetes.io/part-of: rabbitmq
+              spec:
+                containers:
+                  - args:
+                      - '--metrics-addr=0'
+                    command:
+                      - /manager
+                    env:
+                      - name: OPERATOR_NAMESPACE
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: metadata.namespace
+                    image: >-
+                      harbor.alauda.cn/3rdparty/rabbitmqoperator/rabbitmq-cluster-kubernetes-operator:0.8.0-build.70.15
+                    name: operator
+                    resources:
+                      limits:
+                        cpu: 200m
+                        memory: 500Mi
+                      requests:
+                        cpu: 200m
+                        memory: 500Mi
+                imagePullSecrets:
+                  - name: myregistry
+                securityContext:
+                  fsGroup: 1000
+                  runAsGroup: 1000
+                  runAsUser: 1000
+                serviceAccountName: rabbitmq-cluster-operator
+                terminationGracePeriodSeconds: 10
+  installModes:
+    - type: OwnNamespace
+      supported: true
+    - type: SingleNamespace
+      supported: true
+    - type: MultiNamespace
+      supported: false
+    - type: AllNamespaces
+      supported: true

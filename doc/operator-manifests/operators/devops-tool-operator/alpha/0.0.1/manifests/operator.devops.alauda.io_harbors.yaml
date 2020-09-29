@@ -1,0 +1,187 @@
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.2.5
+  creationTimestamp: null
+  name: harbors.operator.devops.alauda.io
+spec:
+  group: operator.devops.alauda.io
+  names:
+    kind: Harbor
+    listKind: HarborList
+    plural: harbors
+    singular: harbor
+  scope: Namespaced
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      description: Harbor is the Schema for the harbors API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: HarborSpec defines the desired state of Harbor
+          properties:
+            account:
+              properties:
+                password:
+                  description: 'Harbor管理员用户名为: admin'
+                  type: string
+              required:
+              - password
+              type: object
+            externalURL:
+              description: 请输入服务的访问地址 Service的Type为“NodePort”时，请输入http://IP:端口（或https://IP:端口），且该“端口”必须与Service的Node Port一致 Service的Type为“Ingress”时，请输入域名，如kubernetes.io
+              type: string
+            helmValues:
+              type: object
+            integratedIntoPlatform:
+              description: 开启时创建的工具实例会自动绑定到DevOps的工具链中（绑定动作会有最长10分钟的延迟）
+              type: boolean
+            oidc:
+              type: object
+            persistence:
+              properties:
+                location:
+                  properties:
+                    nodeName:
+                      description: Type为“LocalPath”时，必须填写
+                      type: string
+                    path:
+                      description: Type为“LocalPath”时，必须填写
+                      type: string
+                  required:
+                  - nodeName
+                  - path
+                  type: object
+                pvc:
+                  properties:
+                    existingClaim:
+                      description: Type为“PVC”时，必须填写
+                      type: string
+                  required:
+                  - existingClaim
+                  type: object
+                type:
+                  enum:
+                  - LocalPath
+                  - PVC
+                  type: string
+              required:
+              - type
+              type: object
+            service:
+              properties:
+                ingress:
+                  properties:
+                    domainName:
+                      description: Type为“Ingress”时，必须填写
+                      pattern: ^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - domainName
+                  type: object
+                nodePort:
+                  properties:
+                    httpPort:
+                      description: Type为“NodePort”时，必须填写
+                      maximum: 32767
+                      minimum: 30000
+                      type: integer
+                    httpsPort:
+                      description: Type为“NodePort”时，必须填写
+                      maximum: 32767
+                      minimum: 30000
+                      type: integer
+                    notaryPort:
+                      description: Type为“NodePort”时，必须填写
+                      maximum: 32767
+                      minimum: 30000
+                      type: integer
+                  required:
+                  - httpPort
+                  - httpsPort
+                  - notaryPort
+                  type: object
+                type:
+                  enum:
+                  - NodePort
+                  - Ingress
+                  type: string
+              required:
+              - type
+              type: object
+          required:
+          - externalURL
+          - integratedIntoPlatform
+          type: object
+        status:
+          description: Status defines the observed state of CR
+          properties:
+            conditions:
+              items:
+                properties:
+                  lastTranstionTime:
+                    format: date-time
+                    type: string
+                  message:
+                    type: string
+                  reason:
+                    type: string
+                  status:
+                    type: boolean
+                  type:
+                    type: string
+                required:
+                - lastTranstionTime
+                - status
+                - type
+                type: object
+              type: array
+            currentVersion:
+              description: support auto upgrade version
+              type: string
+            deployedRelease:
+              properties:
+                manifest:
+                  type: string
+                name:
+                  type: string
+              required:
+              - manifest
+              - name
+              type: object
+            externalURL:
+              type: string
+            helmValues:
+              description: record helm values
+              type: object
+            integratedName:
+              type: string
+            phase:
+              type: string
+            reason:
+              type: string
+            targetVersion:
+              type: string
+          type: object
+      type: object
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

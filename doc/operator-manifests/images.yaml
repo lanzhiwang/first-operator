@@ -1,0 +1,47 @@
+operators:
+  redis:
+  - harbor.alauda.cn/3rdparty/opstree/redis:v2.0
+  - harbor.alauda.cn/3rdparty/opstree/redis-exporter:1.0
+  - harbor.alauda.cn/3rdparty/opstree/redis-operator:v0.0.1
+  - harbor-b.alauda.cn/tdsql/redis-operator:81390ca
+  kafka:
+  - docker.io/strimzi/operator@sha256:2857eec4b4c5eca0fbe342fa37497dcc9eee6fdbc06db53910c92136176ed34d
+  - docker.io/strimzi/kafka@sha256:5f6074515468cdfc80b0f4dccefe810a6254cc08c6fc084ac7565c6f8e757c53
+  - docker.io/strimzi/kafka@sha256:3891d699bec7e33701f630f45762705edde0056244d1a29f65f47ce340ba923b
+  - docker.io/strimzi/kafka@sha256:12d5ed92510941f1569faa449665e9fc6ea544e67b7ae189ec6b8df434e121f4
+  - docker.io/strimzi/kafka-bridge@sha256:34fbe40acdd72eff9fe2d4eca273251776f14218a038de0952f12fce859186c5
+  - docker.io/strimzi/jmxtrans@sha256:ab65157523eaaa25cf44fc273a01ac701dee00e5cd4f0c378b700e0f0f795b73
+  kong:
+  - harbor.alauda.cn/3rdparty/kong-operator:v2.15.0
+  - harbor.alauda.cn/3rdparty/kong:2.1
+  postgres:
+  - harbor-b.alauda.cn/tdsql/postgres-operator:734429c
+  - harbor.alauda.cn/3rdparty/zalando/spilo-12:1.6-p3-alauda-39fde60ca81d63b37415be229a84f7453650ddcf
+  - harbor.alauda.cn/3rdparty/zalando/pgbouncer:master-9
+  - harbor.alauda.cn/3rdparty/zalando/logical-backup:v1.3.0
+  - harbor.alauda.cn/3rdparty/postgres_exporter:v0.8.0 
+  mysql:
+  - harbor.alauda.cn/3rdparty/pxc-operator:v1.5.0.5
+  - harbor.alauda.cn/3rdparty/mysqld-exporter:v1
+  - harbor.alauda.cn/3rdparty/percona/percona-xtradb-cluster:5.7.30-31.43
+  - harbor.alauda.cn/3rdparty/percona/percona-xtradb-cluster:5.7.30-31.43-debug
+  - harbor.alauda.cn/3rdparty/percona/percona-xtradb-cluster-operator:1.5.0-proxysql
+  - harbor.alauda.cn/3rdparty/percona/percona-xtradb-cluster-operator:1.5.0-haproxy
+  - harbor.alauda.cn/3rdparty/percona/percona-xtradb-cluster-operator:1.5.0-pmm
+  - harbor.alauda.cn/3rdparty/percona/percona-xtradb-cluster-operator:1.5.0-pxc8.0-backup
+  consul:
+  - harbor.alauda.cn/3rdparty/consul-operator:v2.15.0
+  - harbor.alauda.cn/3rdparty/consul:1.8.2
+  - harbor.alauda.cn/3rdparty/consul-k8s:0.18.1
+  - harbor.alauda.cn/3rdparty/envoy-alpine:v1.14.2
+  rabbitmq:
+  - harbor.alauda.cn/3rdparty/rabbitmqoperator/rabbitmq-cluster-kubernetes-operator:0.8.0-build.70.15
+  - rabbitmq:3.8.5
+  - kbudde/rabbitmq-exporter:v1.0.0-RC7.1
+  jaeger:
+  - jaegertracing/jaeger-operator:1.18.1
+  - jaegertracing/jaeger-query:1.18.1
+  - jaegertracing/jaeger-agent:1.18.1
+  - jaegertracing/jaeger-collector:1.18.1
+  devops_tools:
+  - harbor-b.alauda.cn/devops/tools-operator:0.0.1
