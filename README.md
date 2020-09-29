@@ -124,4 +124,4 @@ service: imooc-operator-metrics
 
 ## 参考
 
-[项目具体实现过程](http://confluence.alauda.cn/pages/viewpage.action?pageId=75083324)
+[项目具体实现过程](./doc/First_Operator.md)
